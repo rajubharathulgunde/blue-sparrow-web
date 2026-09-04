@@ -1,0 +1,72 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 1. PORTFOLIO & GALLERY
+// ==========================================
+model PortfolioItem {
+  id          String   @id @default(uuid())
+  title       String
+  category    String   // e.g., "Malls", "Corporate", "Birthdays", "Carnivals"
+  scale       String   // e.g., "Large", "Medium", "Small"
+  imageUrl    String
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// 2. CASE STUDIES (For B2B Pages)
+// ==========================================
+model CaseStudy {
+  id          String   @id @default(uuid())
+  title       String
+  category    String   // e.g., "Corporate", "Retail / Mall"
+  theBrief    String   @db.Text
+  thePlan     String   @db.Text
+  madeReal    String   @db.Text
+  featuredImg String?
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// 3. THEMES & EXPERIENCES (Birthdays & Carnivals)
+// ==========================================
+model ExperienceTheme {
+  id          String   @id @default(uuid())
+  slug        String   @unique // e.g., "science", "wizarding"
+  name        String
+  headline    String
+  description String   @db.Text
+  colorTheme  String   // e.g., "blue", "purple", "pink"
+  activities  String[] // Array of activity strings
+  galleryUrls String[] // Array of image URLs
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// 4. CRM LEADS (From your Enquiry Forms)
+// ==========================================
+model Lead {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  eventType   String   // e.g., "Birthday", "Corporate", "Mall Activation"
+  budget      String?
+  message     String?  @db.Text
+  status      String   @default("NEW") // NEW, CONTACTED, BOOKED, LOST
+  createdAt   DateTime @default(now())
+}
