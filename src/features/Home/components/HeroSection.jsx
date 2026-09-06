@@ -3,10 +3,20 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 
+// Reusable Dual-Tone Star doodle
+const DualToneStar = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="dualToneGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#60a5fa" /> {/* Blue */}
+        <stop offset="100%" stopColor="#c084fc" /> {/* Purple */}
+      </linearGradient>
+    </defs>
+    <path d="M12 1L13.8 8.5L21 10L13.8 11.5L12 19L10.2 11.5L3 10L10.2 8.5L12 1Z" fill="url(#dualToneGrad)" />
+  </svg>
+);
+
 const HeroSection = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  
   const [dbBgVideo, setDbBgVideo] = useState(null);
   const [dbSliderVideos, setDbSliderVideos] = useState([]);
 
@@ -20,11 +30,9 @@ const HeroSection = () => {
         .order('created_at', { ascending: false });
         
       if (data && data.length > 0) {
-        // Fetch Main Background Video
         const bgVid = data.find(item => item.category === 'hero_video');
         if (bgVid) setDbBgVideo(bgVid.image_url);
 
-        // Fetch Foreground Slider Videos
         const sliderVids = data.filter(item => item.category === 'hero_slider_video');
         if (sliderVids.length > 0) {
           setDbSliderVideos(sliderVids.map(item => item.image_url));
@@ -33,110 +41,134 @@ const HeroSection = () => {
     };
 
     fetchMedia();
-
-    const channel = supabase.channel('live-hero-media')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery_images' }, fetchMedia)
-      .subscribe();
-
+    const channel = supabase.channel('live-hero-media').on('postgres_changes', { event: '*', schema: 'public', table: 'gallery_images' }, fetchMedia).subscribe();
     return () => supabase.removeChannel(channel);
   }, []);
 
-  const fallbackSliderVideos = [
-    "https://www.w3schools.com/html/mov_bbb.mp4",
-    "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4"
-  ];
-
-  const displaySliderVideos = dbSliderVideos.length > 0 ? dbSliderVideos : fallbackSliderVideos;
-  
-  // Defaults main background to the first slider video if no main background is set
-  const displayBgVideo = dbBgVideo || displaySliderVideos[0];
-
-  useEffect(() => {
-    let timer;
-    if (!isHovered) {
-      timer = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % displaySliderVideos.length);
-      }, 5000);
-    }
-    return () => { if (timer) clearInterval(timer); };
-  }, [displaySliderVideos.length, isHovered]);
-
   return (
-    <section className="relative w-full min-h-[90vh] lg:min-h-screen flex items-center justify-center overflow-hidden bg-[#f5f3ff] pt-20">
-      <motion.div initial={{ x: "-20vw", y: "70vh", scale: 0.4, rotate: 10, opacity: 0 }} animate={{ x: "110vw", y: "-10vh", scale: 1.2, rotate: -15, opacity: 0.9 }} transition={{ duration: 5.5, ease: "easeInOut", delay: 0.3 }} className="absolute z-50 pointer-events-none drop-shadow-2xl">
-        <img src="/assets/your-custom-sparrow.png" alt="Flying Blue Sparrow" className="w-32 h-32 md:w-48 md:h-48 object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
-      </motion.div>
+    <section className="relative w-full min-h-[90vh] flex items-center overflow-hidden bg-white">
+      
+      {/* ================= 1. FULL SCREEN BACKGROUND ================= */}
+      <div className="absolute inset-0 z-0">
+        {dbBgVideo ? (
+          <video className="w-full h-full object-cover object-[60%_center] md:object-[70%_center]" autoPlay loop muted playsInline>
+            <source src={dbBgVideo} type="video/mp4" />
+          </video>
+        ) : (
+          <img 
+            src="/assets/Home Screen Home Images.png" 
+            alt="Magical Experiences" 
+            className="w-full h-full object-cover object-[60%_center] md:object-[70%_center]" 
+            onError={(e) => { 
+              e.target.style.display = 'none'; 
+              e.target.parentElement.classList.add('bg-gradient-to-r', 'from-blue-50', 'to-pink-50'); 
+            }} 
+          />
+        )}
 
-      {/* ================= BACKGROUND VIDEO ================= */}
-      <div className="absolute inset-0 w-full h-full z-0">
-        <video key={displayBgVideo} className="w-full h-full object-cover opacity-30 mix-blend-multiply" autoPlay loop muted playsInline>
-          <source src={displayBgVideo} type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#f5f3ff]/90 via-[#fce7f3]/60 to-white/90"></div>
+        {/* Masking Gradients - Enhanced for mobile readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-transparent w-full md:w-[65%] lg:w-[60%]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/80 to-transparent md:hidden"></div>
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent z-10"></div>
       </div>
 
-      <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
-        <div className="absolute top-32 left-10 w-32 h-16 bg-white/60 rounded-full blur-[2px] shadow-soft animate-[bounce_8s_ease-in-out_infinite]"></div>
-        <div className="absolute top-40 left-16 w-24 h-12 bg-white/50 rounded-full blur-[2px] shadow-soft animate-[bounce_8s_ease-in-out_infinite_delay-100]"></div>
-        <div className="absolute top-1/4 right-10 w-40 h-20 bg-white/40 rounded-full blur-[3px] shadow-soft animate-[bounce_10s_ease-in-out_infinite]"></div>
-        <div className="absolute top-48 left-1/4 text-yellow-400 text-2xl animate-pulse">✨</div>
-        <div className="absolute top-64 right-1/3 text-pink-400 text-3xl animate-[pulse_3s_ease-in-out_infinite]">✨</div>
-        <div className="absolute bottom-32 left-1/3 text-blue-400 text-4xl animate-[pulse_4s_ease-in-out_infinite]">✨</div>
-      </div>
+      {/* Background Soft Pastel Blobs */}
+      <div className="absolute top-[10%] left-[-20%] md:left-[-5%] w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-gradient-to-br from-pink-100/80 to-purple-100/50 rounded-full blur-[80px] pointer-events-none z-0"></div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-16 relative z-20 w-full">
+      {/* ================= 2. FOREGROUND CONTENT ================= */}
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-12 w-full relative z-20 pt-28 pb-16 flex flex-col justify-center min-h-[90vh]">
         
-        <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left">
-          <div className="flex items-center gap-2 mb-2 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/80 shadow-sm">
-            <span className="text-gray-600 font-bold text-[13px] tracking-widest uppercase">We Create</span>
-            <span className="text-yellow-400 text-lg leading-none">✨</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl lg:text-[80px] font-serif font-bold text-brand-navy leading-[1.1] mb-1 tracking-tight drop-shadow-sm">
-            Magical <br className="hidden md:block" /> Experiences
+        {/* Floating Dual-Tone Stars - Adjusted positioning for mobile */}
+        <DualToneStar className="absolute top-[15%] md:top-[20%] left-[60%] md:left-[45%] w-5 h-5 md:w-6 md:h-6 animate-pulse" />
+        <DualToneStar className="absolute bottom-[20%] md:bottom-[25%] left-[8%] md:left-[55%] w-6 h-6 md:w-8 md:h-8 animate-pulse" />
+
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="w-full lg:w-[55%] flex flex-col items-start text-left relative z-20 mt-8 md:mt-0">
+          <span className="text-gray-600 font-bold text-[10px] md:text-[11px] tracking-[0.2em] uppercase mb-4">Events That Inspire</span>
+          
+          <h1 className="text-[42px] sm:text-[52px] md:text-[68px] lg:text-[80px] font-serif font-bold text-[#1e293b] leading-[1.05] tracking-tight mb-2">
+            Magical <br className="hidden sm:block" /> Experiences
           </h1>
-          <h2 className="text-[36px] md:text-[48px] lg:text-[55px] font-script text-[#ff7eb3] mb-6 transform lg:-rotate-2 origin-left tracking-wide drop-shadow-sm">
+          <h2 className="text-[32px] sm:text-[38px] md:text-[48px] lg:text-[56px] text-[#f472b6] mb-6 transform -rotate-2 origin-left" style={{ fontFamily: '"Caveat", cursive' }}>
             That Stay With You Forever
           </h2>
-          <p className="text-[16px] md:text-[17px] text-gray-600 mb-10 max-w-[460px] leading-relaxed font-medium bg-white/40 backdrop-blur-sm p-4 rounded-2xl border border-white/50 shadow-sm">
+          
+          <p className="text-[14px] sm:text-[15px] md:text-[16px] text-gray-700 mb-10 max-w-[480px] leading-relaxed font-medium">
             From corporate workshops to immersive carnivals, we craft exceptional experiences that inspire, engage and bring people together.
           </p>
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-            <button onClick={() => window.scrollTo({ top: 800, behavior: 'smooth' })} className="bg-[#4f46e5] hover:bg-[#4338ca] text-white font-medium py-3.5 px-8 rounded-full shadow-floating hover:shadow-soft-hover transform hover:-translate-y-1 transition-all duration-500 flex items-center gap-3 text-[15px]">
-              Explore Experiences <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          
+          {/* Buttons - Stacked on tiny screens, side-by-side on sm+ */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-12 sm:mb-14 w-full sm:w-auto">
+            <button onClick={() => window.scrollTo({ top: 850, behavior: 'smooth' })} className="w-full sm:w-auto justify-center bg-[#4f46e5] hover:bg-[#4338ca] text-white font-medium py-3.5 px-7 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 text-[14px]">
+              Explore Experiences <span className="ml-1 font-bold">&rarr;</span>
             </button>
-            <Link to="/contact" className="bg-white/80 backdrop-blur-md border border-white hover:border-[#4f46e5] hover:text-[#4f46e5] text-brand-navy font-medium py-3.5 px-8 rounded-full shadow-sm hover:shadow-md transform hover:-translate-y-1 transition-all duration-500 flex items-center gap-3 text-[15px]">
-              Plan an Event <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <Link to="/contact" className="w-full sm:w-auto justify-center bg-white/90 backdrop-blur-sm border border-gray-200 hover:border-[#4f46e5] hover:text-[#4f46e5] text-[#1e293b] font-medium py-3.5 px-7 rounded-full shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 text-[14px]">
+              <svg className="w-4 h-4 text-[#4f46e5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> 
+              Plan an Event
             </Link>
           </div>
-        </motion.div>
 
-        {/* ================= FOREGROUND SLIDER ================= */}
-        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} className="w-full lg:w-1/2 relative flex justify-center lg:justify-end mt-10 lg:mt-0">
-          <div className="relative w-full max-w-[550px] rounded-[40px] shadow-floating border-[6px] border-white/80 overflow-hidden bg-white/20 backdrop-blur-md aspect-[4/3] group" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-            <div className="flex w-full h-full transition-transform duration-1000 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-              {displaySliderVideos.map((video, index) => (
-                <div key={index} className="w-full h-full flex-shrink-0 relative" style={{ flex: "0 0 100%" }}>
-                  {/* ADDED key={video} HERE to force React to load the newly fetched video URL */}
-                  <video key={video} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" autoPlay loop muted playsInline>
-                    <source src={video} type="video/mp4" />
-                  </video>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-80 pointer-events-none"></div>
-                </div>
-              ))}
+          {/* Credibility Metrics - Converted to a 2x2 grid on mobile for a cleaner look */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-x-4 sm:gap-x-8 lg:gap-x-12 gap-y-6 w-full">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-400 shrink-0">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 9h-2V7h-2v5H6v2h2v5h2v-5h2v-2z"/></svg>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-[16px] sm:text-[18px] text-[#1e293b] leading-none mb-1">500+</span>
+                <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium uppercase tracking-wide">Events Delivered</span>
+              </div>
             </div>
-            <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
-              {displaySliderVideos.map((_, idx) => (
-                <button key={idx} onClick={() => setCurrentIndex(idx)} className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/80'}`} aria-label={`Go to slide ${idx + 1}`} />
-              ))}
+            
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-400 flex items-center justify-center text-xl sm:text-2xl drop-shadow-sm shrink-0">✨</div>
+              <div className="flex flex-col">
+                <span className="font-bold text-[16px] sm:text-[18px] text-[#1e293b] leading-none mb-1">100K+</span>
+                <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium uppercase tracking-wide">Happy Kids</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-400 flex items-center justify-center text-xl sm:text-2xl drop-shadow-sm shrink-0">🌟</div>
+              <div className="flex flex-col">
+                <span className="font-bold text-[16px] sm:text-[18px] text-[#1e293b] leading-none mb-1">50+</span>
+                <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium uppercase tracking-wide">Corp Clients</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-400 shrink-0">
+                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-[16px] sm:text-[18px] text-[#1e293b] leading-none mb-1">12+</span>
+                <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium uppercase tracking-wide">Years Magic</span>
+              </div>
             </div>
           </div>
-          <div className="absolute -bottom-6 -right-2 lg:-bottom-12 lg:-right-6 bg-[#fff9e6] rounded-full w-[130px] h-[130px] lg:w-[150px] lg:h-[150px] flex flex-col items-center justify-center p-4 shadow-floating z-30 border-[6px] border-white transform hover:scale-110 transition-transform duration-500 pointer-events-none">
-            <span className="text-pink-400 text-2xl lg:text-3xl mb-1 animate-bounce">💖</span>
-            <span className="text-brand-navy font-bold text-[12px] lg:text-[13px] text-center leading-tight">Crafting<br/>Smiles Since<br/>2016</span>
-          </div>
         </motion.div>
 
+        {/* Crafting Smiles Badge - Hidden on mobile, visible on tablets and up */}
+        <div className="hidden md:flex absolute bottom-[8%] right-[10%] lg:right-[35%] bg-white rounded-full w-[110px] h-[110px] flex-col items-center justify-center p-3 shadow-xl z-30 border border-gray-50 transform hover:scale-105 transition-transform duration-500">
+          <span className="text-red-400 text-[22px] mb-1">❤️</span>
+          <span className="text-[#1e293b] font-bold text-[9px] text-center leading-tight tracking-wide">Crafting<br/>Smiles Since<br/>2016</span>
+        </div>
       </div>
+
+      {/* ================= 3. RIGHT CORNER DOODLES (PINNED TO EDGE) ================= */}
+      <div className="hidden lg:flex absolute bottom-0 right-0 w-[280px] h-[250px] xl:w-[360px] xl:h-[300px] bg-white rounded-tl-[100%] z-30 flex-col justify-center items-center shadow-[-10px_-10px_40px_rgba(255,255,255,0.7)] pt-12 xl:pt-16 pr-10 xl:pr-16">
+        <div className="relative">
+          <img src="/assets/blue sparrow.png" alt="Sparrow" className="absolute -top-14 right-2 w-12 h-12 rotate-12 drop-shadow-md" onError={(e) => e.target.style.display='none'} />
+          <div className="text-transparent bg-clip-text bg-gradient-to-br from-[#1e293b] to-[#4f46e5] text-[18px] xl:text-[22px] leading-tight" style={{ fontFamily: '"Caveat", cursive' }}>
+            <span className="absolute -left-6 top-4 text-xl text-[#60a5fa]"></span>
+            <div className="mb-0.5">Events</div>
+            <div className="mb-0.5">Experiences</div>
+            <div className="mb-0.5">Fun</div>
+            <div className="mb-0.5">For a brighter</div>
+            <div>tomorrow!</div>
+          </div>
+        </div>
+      </div>
+
     </section>
   );
 };
