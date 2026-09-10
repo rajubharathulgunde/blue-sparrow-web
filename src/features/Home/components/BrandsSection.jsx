@@ -6,49 +6,44 @@ const BrandsSection = () => {
   const duplicatedBrands = [...brands, ...brands, ...brands];
 
   return (
-    <section className="py-16 bg-[#fafafa] border-y border-gray-100 overflow-hidden relative font-sans">
+    <section className="py-20 lg:py-28 bg-white border-y border-slate-100 overflow-hidden relative font-sans">
       
-      {/* Pure CSS Background Abstract Shapes */}
-      <div className="absolute top-[20%] left-[5%] w-12 h-12 border-4 border-pink-100 rounded-full opacity-50 z-0"></div>
-      <div className="absolute bottom-[30%] right-[10%] w-8 h-8 bg-blue-100 rotate-45 opacity-50 z-0"></div>
-      
-      {/* CSS squiggly line spanning the width behind the marquee */}
-      <div className="absolute top-1/2 left-0 w-full h-[1px] border-b-2 border-dashed border-gray-200 z-0"></div>
-
-      {/* Animated Header */}
+      {/* Animated Header - Minimal & Premium */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto px-6 text-center mb-10 relative z-10"
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-7xl mx-auto px-6 text-center mb-16 relative z-10 flex flex-col items-center"
       >
-        <h2 className="text-[28px] font-serif font-bold text-[#1e293b] mb-2 relative inline-block">
-          Trusted by Amazing Brands
-          {/* Subtle Highlighter background behind title */}
-          <div className="absolute bottom-1 left-[-5%] w-[110%] h-3 bg-yellow-100 opacity-60 z-[-1] rounded-full rotate-1"></div>
+        <span className="text-slate-400 font-bold tracking-[0.2em] uppercase text-[11px] mb-4 block">
+          Global Trust
+        </span>
+        <h2 className="text-[32px] md:text-[40px] font-sans font-extrabold text-slate-900 tracking-tight leading-tight max-w-xl">
+          Trusted by the world's most innovative teams.
         </h2>
-        <p className="text-gray-500 text-[14px] font-light">We're proud to create unforgettable experiences for</p>
       </motion.div>
       
       {/* Infinite Auto-Scrolling Marquee */}
       <div className="relative max-w-[1400px] mx-auto flex overflow-hidden z-10">
          
-         {/* Left & Right Fade Gradients matching the off-white background */}
-         <div className="absolute top-0 left-0 w-16 md:w-32 h-full bg-gradient-to-r from-[#fafafa] to-transparent z-10 pointer-events-none"></div>
-         <div className="absolute top-0 right-0 w-16 md:w-32 h-full bg-gradient-to-l from-[#fafafa] to-transparent z-10 pointer-events-none"></div>
+         {/* Deep Fade Gradients for a seamless edge transition */}
+         <div className="absolute top-0 left-0 w-20 md:w-48 h-full bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+         <div className="absolute top-0 right-0 w-20 md:w-48 h-full bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
          <motion.div 
-           className="flex gap-6 whitespace-nowrap px-4 w-max hover:[animation-play-state:paused]"
+           className="flex gap-6 md:gap-8 whitespace-nowrap px-4 w-max hover:[animation-play-state:paused]"
            animate={{ x: ["0%", "-33.33%"] }}
-           transition={{ repeat: Infinity, ease: "linear", duration: 25 }}
+           transition={{ repeat: Infinity, ease: "linear", duration: 35 }} // Slower, more elegant scroll speed
          >
            {duplicatedBrands.map((brand, i) => (
-             <div key={i} className="flex-none w-[160px] h-[72px] bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 transition-all duration-300 cursor-pointer group relative">
-                {/* CSS pop dot on hover */}
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-pink-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                
-                <span className="text-gray-400 font-bold text-lg group-hover:text-gray-700 transition-colors">{brand}</span>
+             <div 
+               key={i} 
+               className="flex-none w-[180px] md:w-[220px] h-[80px] md:h-[90px] bg-slate-50 border border-slate-100 rounded-[28px] flex items-center justify-center hover:bg-white hover:border-slate-200 hover:shadow-[0_20px_40px_-10px_rgba(15,23,42,0.08)] transform hover:-translate-y-1 transition-all duration-500 cursor-pointer group"
+             >
+                <span className="text-slate-400 font-bold text-xl md:text-2xl tracking-wide group-hover:text-slate-900 transition-colors duration-300">
+                  {brand}
+                </span>
              </div>
            ))}
          </motion.div>

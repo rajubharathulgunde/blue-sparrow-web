@@ -1,164 +1,144 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { supabase } from '../../../lib/supabase';
-
-// Reusable SVG Star Doodle
-const StarDoodle = ({ className, color = "#fcd34d" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 1L13.8 8.5L21 10L13.8 11.5L12 19L10.2 11.5L3 10L10.2 8.5L12 1Z" fill={color} />
-  </svg>
-);
-
-// Reusable SVG Paperclip
-const Paperclip = () => (
-  <svg width="20" height="40" viewBox="0 0 24 48" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round" className="drop-shadow-sm">
-    <path d="M12 36V10c0-3.3 2.7-6 6-6s6 2.7 6 6v24c0 5.5-4.5 10-10 10S4 39.5 4 34V12"/>
-  </svg>
-);
 
 const ExperiencesSection = () => {
-  const [dbCards, setDbCards] = useState([]);
-
-  useEffect(() => {
-    const fetchCards = async () => {
-      const { data } = await supabase
-        .from('theme_cards')
-        .select('*')
-        .eq('theme_id', 'home')
-        .order('created_at', { ascending: true });
-      if (data) setDbCards(data);
-    };
-
-    fetchCards();
-    const channel = supabase.channel('live-home-cards').on('postgres_changes', { event: '*', schema: 'public', table: 'theme_cards' }, fetchCards).subscribe();
-    return () => supabase.removeChannel(channel);
-  }, []);
-
-  const fallbackCards = [
-    { title: "Birthdays", description: "Magical Celebrations", icon: "🎂", color: "pink" },
-    { title: "Corporate", description: "Family Days", icon: "👥", color: "blue" },
-    { title: "Mall & Retail", description: "Activations", icon: "🛍️", color: "green" },
-    { title: "Schools & Colleges", description: "Interactive Programs", icon: "🎓", color: "purple" },
-    { title: "Realtor & Society", description: "Community Events", icon: "🏢", color: "orange" },
-    { title: "Carnivals & Festivals", description: "Large Scale Experiences", icon: "🎪", color: "pink-dark" },
+  const experiences = [
+    {
+      id: "birthday",
+      title: "Birthday Parties",
+      subtitle: "Magical Celebrations",
+      image: "/assets/Birthday Section.png",
+      link: "/kids-parties",
+      gradient: "from-pink-500 to-rose-400",
+      hoverGradient: "hover:from-pink-400 hover:to-rose-300",
+      shadow: "shadow-pink-500/30"
+    },
+    {
+      id: "corporate",
+      title: "Corporate Events",
+      subtitle: "Team Building, Reimagined",
+      image: "/assets/Corporate Family Days.png",
+      link: "/corporate",
+      gradient: "from-blue-600 to-cyan-500",
+      hoverGradient: "hover:from-blue-500 hover:to-cyan-400",
+      shadow: "shadow-blue-500/30"
+    },
+    {
+      id: "carnival",
+      title: "Carnivals",
+      subtitle: "Spectacular Fun",
+      image: "/assets/Carnival 1.png",
+      link: "/carnivals",
+      gradient: "from-purple-600 to-indigo-500",
+      hoverGradient: "hover:from-purple-500 hover:to-indigo-400",
+      shadow: "shadow-purple-500/30"
+    },
+    {
+      id: "family",
+      title: "Family Day",
+      subtitle: "Cherish Every Moment",
+      image: "/assets/Family.png",
+      link: "/family-day",
+      gradient: "from-amber-500 to-orange-400",
+      hoverGradient: "hover:from-amber-400 hover:to-orange-300",
+      shadow: "shadow-orange-500/30"
+    },
+    {
+      id: "malls",
+      title: "Malls & Brands",
+      subtitle: "High Footfall Activations",
+      image: "/assets/Malls and Brands Activites.png",
+      link: "/malls",
+      gradient: "from-cyan-500 to-blue-400",
+      hoverGradient: "hover:from-cyan-400 hover:to-blue-300",
+      shadow: "shadow-cyan-500/30"
+    }
   ];
 
-  const displayCards = dbCards.length > 0 ? dbCards : fallbackCards;
-
-  // Exact glow and color mapping for the pills
-  const colorMap = {
-    'pink': { textTitle: 'text-[#f472b6]', shadow: 'shadow-[0_8px_20px_rgba(244,114,182,0.12)] border-pink-50 hover:border-pink-100' },
-    'blue': { textTitle: 'text-[#3b82f6]', shadow: 'shadow-[0_8px_20px_rgba(59,130,246,0.12)] border-blue-50 hover:border-blue-100' },
-    'green': { textTitle: 'text-[#10b981]', shadow: 'shadow-[0_8px_20px_rgba(16,185,129,0.12)] border-emerald-50 hover:border-emerald-100' },
-    'purple': { textTitle: 'text-[#a855f7]', shadow: 'shadow-[0_8px_20px_rgba(168,85,247,0.12)] border-purple-50 hover:border-purple-100' },
-    'orange': { textTitle: 'text-[#f59e0b]', shadow: 'shadow-[0_8px_20px_rgba(245,158,11,0.12)] border-orange-50 hover:border-orange-100' },
-    'pink-dark': { textTitle: 'text-[#e11d48]', shadow: 'shadow-[0_8px_20px_rgba(225,29,72,0.12)] border-rose-50 hover:border-rose-100' },
-  };
-
   return (
-    <section className="py-20 lg:py-28 bg-white relative z-20 overflow-hidden font-sans border-b border-gray-50">
+    <section className="py-24 lg:py-32 bg-[#f8fafc] relative overflow-hidden">
       
-      {/* 
-        Using CSS Grid here completely solves the overlapping issue. 
-        It forces the collage and the text into two strict, non-overlapping columns.
-      */}
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+      {/* Premium Ambient Background Glows */}
+      <div className="absolute top-[10%] left-[-5%] w-[40vw] h-[40vw] bg-indigo-400/10 blur-[140px] rounded-full z-0 pointer-events-none"></div>
+      <div className="absolute bottom-[10%] right-[-5%] w-[40vw] h-[40vw] bg-pink-400/10 blur-[140px] rounded-full z-0 pointer-events-none"></div>
+
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col lg:flex-row gap-16 lg:gap-20 relative z-10">
         
-        {/* ================= LEFT: 4 Polaroid Collage ================= */}
-        <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="relative w-full">
-          
-          {/* Constrained Aspect-Square Box prevents images from blowing up and overlapping */}
-          <div className="relative w-full max-w-[500px] mx-auto aspect-square">
+        {/* ================= LEFT SIDE: STICKY PREMIUM HEADER ================= */}
+        <div className="w-full lg:w-[35%] relative">
+          <div className="lg:sticky lg:top-32 flex flex-col items-start">
             
-            <div className="absolute top-[2%] left-[2%] w-[48%] aspect-[4/3] bg-white p-2 shadow-lg rounded-xl transform -rotate-6 z-10 border border-gray-100">
-              <div className="absolute -top-5 left-[60%] transform -translate-x-1/2 z-50 rotate-12"><Paperclip /></div>
-              <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80" alt="Corporate" className="w-full h-full object-cover rounded-md" />
-            </div>
+            <span className="bg-white/80 backdrop-blur-md text-indigo-600 font-bold tracking-[0.2em] uppercase text-[11px] px-5 py-2 rounded-full mb-8 shadow-sm border border-indigo-100">
+              The Blue Sparrow Range
+            </span>
             
-            <div className="absolute top-[10%] right-[2%] w-[48%] aspect-[4/3] bg-white p-2 shadow-lg rounded-xl transform rotate-4 z-20 border border-gray-100">
-              <div className="absolute -top-5 left-[30%] transform -translate-x-1/2 z-50 -rotate-6"><Paperclip /></div>
-              <img src="https://images.unsplash.com/photo-1540317580384-e5d43867caa6?auto=format&fit=crop&w=600&q=80" alt="Festival" className="w-full h-full object-cover rounded-md" />
+            <h2 className="text-[42px] sm:text-[56px] lg:text-[60px] xl:text-[64px] font-sans font-extrabold text-slate-900 leading-[1.05] tracking-tight mb-6">
+              We make spaces <br className="hidden lg:block"/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">come alive.</span>
+            </h2>
+            
+            <p className="text-[16px] lg:text-[17px] text-slate-500 font-medium leading-relaxed bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] mb-10">
+              Blue Sparrow can take your child's interest, your audience, your space, or your objective and build the exact right event around it.
+            </p>
+            
+            <Link to="/contact" className="inline-flex bg-slate-900 hover:bg-slate-800 text-white font-semibold py-4 px-10 rounded-full shadow-[0_10px_30px_rgba(15,23,42,0.2)] transform hover:-translate-y-1 transition-all duration-300 text-[15px] tracking-wide items-center gap-3">
+              Discuss Your Space <span className="text-cyan-400 text-lg">✨</span>
+            </Link>
+
+            {/* Subtle Handwritten Decorative Note */}
+            <div className="hidden lg:block absolute bottom-[-80px] right-0 opacity-60 rotate-[-10deg]">
+              <span className="text-pink-500 text-[24px]" style={{ fontFamily: '"Caveat", cursive' }}>
+                Unforgettable Experiences ⤵
+              </span>
             </div>
 
-            <div className="absolute bottom-[5%] left-[8%] w-[45%] aspect-square bg-white p-2 shadow-xl rounded-xl transform rotate-[-4deg] z-30 border border-gray-100">
-              <img src="https://images.unsplash.com/photo-1560523159-4a9692d222f9?auto=format&fit=crop&w=600&q=80" alt="Kids Event" className="w-full h-full object-cover rounded-md" />
-            </div>
-
-            <div className="absolute bottom-[0%] right-[6%] w-[50%] aspect-[4/3] bg-white p-2 shadow-2xl rounded-xl transform rotate-[6deg] z-40 border border-gray-100">
-               <img src="https://images.unsplash.com/photo-1530021544433-289542f53cb4?auto=format&fit=crop&w=600&q=80" alt="Happy Girl" className="w-full h-full object-cover rounded-md" />
-            </div>
-
-            {/* CSS Doodles around the collage */}
-            <div className="absolute top-[40%] -left-8 md:-left-16 transform -translate-y-1/2 pointer-events-none flex flex-col items-center">
-              <StarDoodle className="absolute -top-8 -left-4 w-6 h-6" color="#f9a8d4" />
-              <StarDoodle className="absolute -top-2 -right-8 w-4 h-4" color="#fde047" />
-              <p className="text-[20px] md:text-[24px] text-gray-600 leading-[1.1] rotate-[-10deg] text-center" style={{ fontFamily: '"Caveat", cursive' }}>
-                Different<br/>Audiences<br/>Same<br/>Magic!
-              </p>
-              <img src="/assets/blue sparrow.png" alt="Sparrow" className="w-10 h-10 mt-2 -rotate-12" onError={(e) => e.target.style.display='none'} />
-            </div>
-            
           </div>
-        </motion.div>
+        </div>
 
-        {/* ================= RIGHT: Text & Pill Cards ================= */}
-        <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="relative w-full">
-          
-          <span className="text-[#a855f7] font-bold tracking-[0.15em] uppercase text-[10px] md:text-[11px] mb-4 block">The Blue Sparrow Range</span>
-          <h2 className="text-[32px] sm:text-[36px] lg:text-[44px] font-serif font-bold text-[#1e293b] mb-4 leading-[1.1]">
-            We make spaces come alive for people.
-          </h2>
-          <p className="text-gray-500 text-[14px] md:text-[15px] font-light leading-relaxed mb-10 max-w-[500px]">
-            Blue Sparrow can take your child's interest, your audience, your space, or your objective and build the exact right event around it.
-          </p>
-
-          {/* Glowing Pill Grid (Forces 3 columns on Desktop, responsive on mobile) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
-            {displayCards.slice(0, 6).map((card, i) => {
-              const theme = colorMap[card.color] || colorMap[['pink', 'blue', 'green', 'purple', 'orange', 'pink-dark'][i]];
+        {/* ================= RIGHT SIDE: PREMIUM TWO-COLUMN GRID ================= */}
+        <div className="w-full lg:w-[65%] grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-16 lg:gap-y-20 pt-8 lg:pt-0">
+          {experiences.map((exp, idx) => (
+            <motion.div 
+              key={exp.id}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, delay: (idx % 2) * 0.2, ease: "easeOut" }}
+              // The 5th item gracefully spans both columns on larger screens to balance the grid
+              className={`relative flex flex-col items-center group ${idx === 4 ? 'sm:col-span-2 sm:w-[85%] sm:mx-auto' : ''}`}
+            >
               
-              return (
+              {/* Premium Framed Image Container */}
+              <div className="w-full aspect-[4/3] rounded-[40px] md:rounded-[48px] overflow-hidden border-[6px] md:border-[8px] border-white bg-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.08)] relative z-10 transition-all duration-700 group-hover:shadow-[0_25px_60px_rgba(0,0,0,0.15)]">
+                <img 
+                  src={exp.image} 
+                  alt={exp.title} 
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-[10s] ease-out"
+                  onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1519335359739-16629737f909?auto=format&fit=crop&w=1000&q=80"; }}
+                />
+                {/* Dark gradient for text legibility & depth */}
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-900/60 via-slate-900/20 to-transparent"></div>
+              </div>
+
+              {/* High-End Glassmorphic Pill */}
+              <div className="relative -mt-10 md:-mt-12 z-20 w-[90%] md:w-[85%]">
                 <Link 
-                  to={card.icon?.includes('/') ? card.icon : card.link || "/contact"} 
-                  key={card.id || i}
-                  className={`flex items-center gap-3 bg-white px-4 py-3 rounded-full border hover:-translate-y-1 transition-all duration-300 group ${theme.shadow}`}
+                  to={exp.link}
+                  className={`bg-gradient-to-r ${exp.gradient} ${exp.hoverGradient} text-white flex flex-col items-center justify-center w-full py-4 md:py-5 rounded-full shadow-[0_15px_35px_-5px_rgba(0,0,0,0.3)] ${exp.shadow} border-[3px] border-white/40 backdrop-blur-md transform group-hover:-translate-y-2 transition-all duration-500`}
                 >
-                  <div className="text-xl shrink-0 drop-shadow-sm group-hover:scale-110 transition-transform">
-                    {card.icon && !card.icon.includes('/') ? card.icon : '✨'}
-                  </div>
-                  <div className="flex flex-col justify-center">
-                    <h4 className={`font-bold text-[12px] md:text-[13px] leading-tight ${theme.textTitle}`}>{card.title}</h4>
-                    <p className="text-[10px] md:text-[11px] leading-tight font-medium text-gray-400 mt-0.5">{card.description}</p>
-                  </div>
+                  <span className="font-sans font-bold text-[20px] lg:text-[22px] tracking-tight drop-shadow-md text-center leading-tight">
+                    {exp.title}
+                  </span>
+                  <span className="text-white/90 text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase mt-1 drop-shadow-sm text-center">
+                    {exp.subtitle}
+                  </span>
                 </Link>
-              );
-            })}
-          </div>
-
-          <Link to="/contact" className="inline-flex items-center justify-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-medium py-3.5 px-8 rounded-full shadow-[0_8px_20px_rgba(79,70,229,0.25)] hover:shadow-[0_8px_25px_rgba(79,70,229,0.4)] transform hover:-translate-y-0.5 transition-all text-[15px]">
-            Discuss Your Space &rarr;
-          </Link>
-
-          {/* Right CSS Doodles (Hidden on mobile to prevent horizontal scroll issues) */}
-          <div className="absolute top-4 -right-10 xl:-right-24 transform rotate-[-5deg] hidden lg:block pointer-events-none">
-            <div className="relative">
-              {/* CSS Orange Dashes */}
-              <div className="absolute top-8 -left-6 flex gap-1 rotate-12">
-                 <div className="w-0.5 h-3 bg-orange-400 rounded-full"></div>
-                 <div className="w-0.5 h-3 bg-orange-400 rounded-full"></div>
-              </div>
-              <div className="absolute bottom-6 -left-4 flex gap-1 rotate-12">
-                 <div className="w-0.5 h-3 bg-orange-400 rounded-full"></div>
               </div>
 
-              <p className="text-[20px] xl:text-[22px] text-gray-600 leading-tight text-center" style={{ fontFamily: '"Caveat", cursive' }}>
-                Ideas<br/>People<br/>Spaces<br/>Unforgettable<br/>Experiences
-              </p>
-            </div>
-          </div>
-
-        </motion.div>
+            </motion.div>
+          ))}
+        </div>
 
       </div>
     </section>

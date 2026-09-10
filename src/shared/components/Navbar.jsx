@@ -24,27 +24,27 @@ const Navbar = () => {
           </div>
         </Link>
 
-        {/* CENTER: Desktop Navigation Links (Tightened to fit new sections) */}
+        {/* CENTER: Desktop Navigation Links */}
         <div className="hidden lg:flex items-center gap-3 xl:gap-5">
           <Link to="/" className="text-brand-navy font-medium text-[12px] xl:text-[13px] hover:text-[#4f46e5] transition-colors duration-300">Home</Link>
           <Link to="/about" className="text-gray-600 font-medium text-[12px] xl:text-[13px] hover:text-[#4f46e5] transition-colors duration-300">About Us</Link>
           <Link to="/kids-parties" className="text-gray-600 font-medium text-[12px] xl:text-[13px] hover:text-[#4f46e5] transition-colors duration-300">Birthday Party</Link>
           <Link to="/corporate" className="text-gray-600 font-medium text-[12px] xl:text-[13px] hover:text-[#4f46e5] transition-colors duration-300">Corporate Family Days</Link>
-          <Link to="/family-discovery" className="text-gray-600 font-medium text-[12px] xl:text-[13px] hover:text-[#4f46e5] transition-colors duration-300">Family Discovery</Link>
+          <Link to="/carnivals" className="text-gray-600 font-medium text-[12px] xl:text-[13px] hover:text-[#4f46e5] transition-colors duration-300">Carnival</Link>
+          <Link to="/family-day" className="text-gray-600 font-medium text-[12px] xl:text-[13px] hover:text-[#4f46e5] transition-colors duration-300">Family Day</Link>
           <Link to="/malls" className="text-gray-600 font-medium text-[12px] xl:text-[13px] hover:text-[#4f46e5] transition-colors duration-300">Malls & Brand Activities</Link>
           
-          {/* EXPERIENCES DROPDOWN */}
+          {/* THEMES DROPDOWN (Renamed from Experiences) */}
           <div className="relative group">
             <span className="text-gray-600 font-medium text-[12px] xl:text-[13px] hover:text-[#4f46e5] transition-colors duration-300 flex items-center gap-1 cursor-pointer py-2">
-              Experiences <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4f46e5] transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              Themes <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4f46e5] transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
             </span>
             <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-floating opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col overflow-hidden">
-              <Link to="/carnivals" className="px-5 py-3 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors">Carnival</Link>
               <Link to="/theme/science" className="px-5 py-3 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">Science</Link>
               <Link to="/theme/wizarding" className="px-5 py-3 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors">Wizarding</Link>
               <Link to="/theme/princess" className="px-5 py-3 text-sm text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition-colors">Princess</Link>
               <Link to="/theme/superhero" className="px-5 py-3 text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors">Superhero</Link>
-              <Link to="/theme/other" className="px-5 py-3 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">Other Experiences</Link>
+              <Link to="/theme/other" className="px-5 py-3 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">Other Themes</Link>
             </div>
           </div>
 
@@ -98,19 +98,19 @@ const Navbar = () => {
               <Link to="/about" onClick={closeMenu} className="text-xl font-serif font-bold text-brand-navy hover:text-[#4f46e5]">About Us</Link>
               <Link to="/kids-parties" onClick={closeMenu} className="text-xl font-serif font-bold text-brand-navy hover:text-[#4f46e5]">Birthday Party</Link>
               <Link to="/corporate" onClick={closeMenu} className="text-xl font-serif font-bold text-brand-navy hover:text-[#4f46e5]">Corporate Family Days</Link>
-              <Link to="/family-discovery" onClick={closeMenu} className="text-xl font-serif font-bold text-brand-navy hover:text-[#4f46e5]">Family Discovery</Link>
+              <Link to="/carnivals" onClick={closeMenu} className="text-xl font-serif font-bold text-brand-navy hover:text-[#4f46e5]">Carnival</Link>
+              <Link to="/family-day" onClick={closeMenu} className="text-xl font-serif font-bold text-brand-navy hover:text-[#4f46e5]">Family Day</Link>
               <Link to="/malls" onClick={closeMenu} className="text-xl font-serif font-bold text-brand-navy hover:text-[#4f46e5]">Malls & Brand Activities</Link>
               
-              {/* Experiences Mobile Group */}
+              {/* Themes Mobile Group */}
               <div className="w-full border-t border-gray-100 pt-5 mt-2 flex flex-col items-center">
-                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Experiences</span>
+                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Themes</span>
                 <div className="flex flex-col items-center gap-4">
-                  <Link to="/carnivals" onClick={closeMenu} className="text-lg font-serif font-bold text-emerald-500">Carnival</Link>
                   <Link to="/theme/science" onClick={closeMenu} className="text-lg font-serif font-bold text-blue-500">Science</Link>
                   <Link to="/theme/wizarding" onClick={closeMenu} className="text-lg font-serif font-bold text-purple-500">Wizarding</Link>
                   <Link to="/theme/princess" onClick={closeMenu} className="text-lg font-serif font-bold text-pink-500">Princess</Link>
                   <Link to="/theme/superhero" onClick={closeMenu} className="text-lg font-serif font-bold text-red-500">Superhero</Link>
-                  <Link to="/theme/other" onClick={closeMenu} className="text-lg font-serif font-bold text-indigo-500">Other Experiences</Link>
+                  <Link to="/theme/other" onClick={closeMenu} className="text-lg font-serif font-bold text-indigo-500">Other Themes</Link>
                 </div>
               </div>
 

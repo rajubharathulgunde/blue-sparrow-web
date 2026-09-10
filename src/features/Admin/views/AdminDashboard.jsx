@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('overview'); // overview, leads, content, media
+  const [activeTab, setActiveTab] = useState('overview'); 
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -13,11 +13,21 @@ const AdminDashboard = () => {
   const [gallery, setGallery] = useState([]);
 
   // Time Filter State
-  const [timeFilter, setTimeFilter] = useState('all'); // all, today, week, month
+  const [timeFilter, setTimeFilter] = useState('all'); 
 
   // Content/Media Upload States
   const [newCard, setNewCard] = useState({ theme_id: 'home', title: '', description: '', icon: '', bg_color: 'bg-white' });
-  const [newGallery, setNewGallery] = useState({ theme_id: 'home', category: 'featured_events', title: '', description: '' });
+  const [newGallery, setNewGallery] = useState({ 
+    theme_id: 'home', 
+    category: 'hero_slider_video',
+    title: '', 
+    description: '',
+    location: '',
+    tag: '',
+    tagColor: 'text-cyan-600',
+    ig_link: ''
+  });
+  
   const [uploadFile, setUploadFile] = useState(null);
 
   // Modal States for Leads
@@ -45,7 +55,6 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
-  // === TIME FILTERING LOGIC ===
   const filterByTime = (dataArray) => {
     const now = new Date();
     return dataArray.filter(item => {
@@ -64,15 +73,11 @@ const AdminDashboard = () => {
   };
 
   const filteredLeads = filterByTime(leads);
-
-  // === ANALYTICS LOGIC ===
   const approvedLeads = filteredLeads.filter(l => l.status === 'approved');
   const rejectedLeads = filteredLeads.filter(l => l.status === 'rejected');
   const pendingLeads = filteredLeads.filter(l => !l.status || l.status === 'pending');
-  
   const totalRevenue = approvedLeads.reduce((sum, l) => sum + (Number(l.budget) || 0), 0);
 
-  // Calculate Top Section
   const sectionsCount = approvedLeads.reduce((acc, l) => {
     const section = l.planned_section || l.event_type || 'Unknown';
     acc[section] = (acc[section] || 0) + 1;
@@ -80,7 +85,6 @@ const AdminDashboard = () => {
   }, {});
   const topSection = Object.keys(sectionsCount).sort((a,b) => sectionsCount[b] - sectionsCount[a])[0] || 'N/A';
 
-  // Calculate Top Rejection Reason
   const reasonsCount = rejectedLeads.reduce((acc, l) => {
     const reason = l.rejection_reason || 'Unknown';
     acc[reason] = (acc[reason] || 0) + 1;
@@ -88,36 +92,39 @@ const AdminDashboard = () => {
   }, {});
   const topRejectionReason = Object.keys(reasonsCount).sort((a,b) => reasonsCount[b] - reasonsCount[a])[0] || 'N/A';
 
+  // === HERO DISPLAY SETTING LOGIC ===
+  const currentModeCard = cards.find(c => c.title === 'hero_display_mode');
+  const currentHeroMode = currentModeCard ? currentModeCard.description : 'all';
 
-  // === LEAD ACTIONS ===
+  const updateHeroDisplayMode = async (mode) => {
+    setIsLoading(true);
+    if (currentModeCard) {
+      await supabase.from('theme_cards').update({ description: mode }).eq('id', currentModeCard.id);
+    } else {
+      await supabase.from('theme_cards').insert([{ theme_id: 'config', title: 'hero_display_mode', description: mode }]);
+    }
+    fetchData();
+    setIsLoading(false);
+  };
+
   const handleApproveSubmit = async (e) => {
     e.preventDefault();
-    await supabase.from('leads').update({ 
-      status: 'approved', 
-      budget: Number(approveModal.budget), 
-      planned_section: approveModal.section 
-    }).eq('id', approveModal.leadId);
-    
+    await supabase.from('leads').update({ status: 'approved', budget: Number(approveModal.budget), planned_section: approveModal.section }).eq('id', approveModal.leadId);
     setApproveModal({ isOpen: false, leadId: null, budget: '', section: 'Corporate Events' });
     fetchData();
   };
 
   const handleRejectSubmit = async (e) => {
     e.preventDefault();
-    await supabase.from('leads').update({ 
-      status: 'rejected', 
-      rejection_reason: rejectModal.reason 
-    }).eq('id', rejectModal.leadId);
-    
+    await supabase.from('leads').update({ status: 'rejected', rejection_reason: rejectModal.reason }).eq('id', rejectModal.leadId);
     setRejectModal({ isOpen: false, leadId: null, reason: 'Budget too high' });
     fetchData();
   };
 
-  // === UPLOAD LOGIC ===
   const handleFileUpload = async (file) => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const { error: uploadError, data } = await supabase.storage.from('website-assets').upload(fileName, file);
+    const { error: uploadError } = await supabase.storage.from('website-assets').upload(fileName, file);
     if (uploadError) throw uploadError;
     const { data: { publicUrl } } = supabase.storage.from('website-assets').getPublicUrl(fileName);
     return publicUrl;
@@ -144,10 +151,25 @@ const AdminDashboard = () => {
     if (!uploadFile) return alert('Please select a file.');
     setIsLoading(true);
     try {
-      const imageUrl = await handleFileUpload(uploadFile);
-      await supabase.from('gallery_images').insert([{ ...newGallery, image_url: imageUrl }]);
+      const fileUrl = await handleFileUpload(uploadFile);
+      
+      const insertData = {
+        theme_id: newGallery.theme_id,
+        category: newGallery.category,
+        title: newGallery.title,
+        description: newGallery.description,
+        image_url: fileUrl, 
+        video_url: fileUrl, 
+        location: newGallery.location,
+        tag: newGallery.tag,
+        tagColor: newGallery.tagColor,
+        ig_link: newGallery.ig_link
+      };
+
+      await supabase.from('gallery_images').insert([insertData]);
       alert('Media Added Successfully!');
-      setNewGallery({ theme_id: 'home', category: 'featured_events', title: '', description: '' });
+      
+      setNewGallery({ theme_id: 'home', category: 'hero_slider_video', title: '', description: '', location: '', tag: '', tagColor: 'text-cyan-600', ig_link: '' });
       setUploadFile(null);
       if(fileInputRef.current) fileInputRef.current.value = "";
       fetchData();
@@ -200,7 +222,6 @@ const AdminDashboard = () => {
             <p className="text-gray-500 font-medium text-sm mt-1">Manage your magical experiences</p>
           </div>
 
-          {/* Global Time Filter for Overview and Leads */}
           {(activeTab === 'overview' || activeTab === 'leads') && (
             <div className="flex bg-white rounded-xl shadow-sm border border-gray-200 p-1">
               {['today', 'week', 'month', 'all'].map((tf) => (
@@ -219,12 +240,10 @@ const AdminDashboard = () => {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              
               <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col">
                 <span className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-2">Total Revenue</span>
                 <span className="text-4xl font-serif font-bold text-[#10b981]">₹{totalRevenue.toLocaleString()}</span>
               </div>
-
               <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col">
                 <span className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-2">Conversion Rate</span>
                 <span className="text-4xl font-serif font-bold text-[#4f46e5]">
@@ -232,19 +251,15 @@ const AdminDashboard = () => {
                 </span>
                 <span className="text-sm text-gray-500 font-medium mt-2">{approvedLeads.length} Approved / {rejectedLeads.length} Rejected</span>
               </div>
-
               <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col">
                 <span className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-2">Most Popular Theme</span>
                 <span className="text-2xl font-serif font-bold text-[#ec4899] truncate">{topSection}</span>
               </div>
-
               <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col">
                 <span className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-2">Top Rejection Reason</span>
                 <span className="text-2xl font-serif font-bold text-[#ef4444] truncate">{topRejectionReason}</span>
               </div>
-
             </div>
-
             <div className="bg-[#f0f9ff] border border-blue-100 p-8 rounded-3xl text-center">
               <h3 className="text-xl font-bold text-brand-navy mb-2">Keep crafting smiles! ✨</h3>
               <p className="text-gray-600 font-medium">You have {pendingLeads.length} leads waiting for your review in the CRM.</p>
@@ -264,7 +279,6 @@ const AdminDashboard = () => {
 
               return (
                 <div key={lead.id} className={`bg-white rounded-[24px] shadow-sm border overflow-hidden flex flex-col ${isApproved ? 'border-[#10b981]' : isRejected ? 'border-[#ef4444]' : 'border-yellow-400'}`}>
-                  {/* Status Banner */}
                   <div className={`px-5 py-2 text-xs font-bold uppercase tracking-widest text-white ${isApproved ? 'bg-[#10b981]' : isRejected ? 'bg-[#ef4444]' : 'bg-yellow-400 text-yellow-900'}`}>
                     {isApproved ? '✅ Approved' : isRejected ? '❌ Rejected' : '⏳ Pending Review'}
                   </div>
@@ -282,7 +296,6 @@ const AdminDashboard = () => {
                       <p className="text-xs text-gray-400 mt-2">{new Date(lead.created_at).toLocaleString()}</p>
                     </div>
 
-                    {/* Show results if processed */}
                     {isApproved && (
                       <div className="mt-auto bg-[#f0fdf4] text-[#065f46] p-3 rounded-xl text-sm font-bold flex justify-between">
                         <span>{lead.planned_section}</span>
@@ -295,7 +308,6 @@ const AdminDashboard = () => {
                       </div>
                     )}
 
-                    {/* Action Buttons if Pending */}
                     {isPending && (
                       <div className="flex gap-3 mt-auto pt-4 border-t border-gray-100">
                         <button onClick={() => setApproveModal({ isOpen: true, leadId: lead.id, budget: '', section: lead.event_type || 'Corporate Events' })} className="flex-1 bg-[#10b981] hover:bg-[#059669] text-white font-bold py-2.5 rounded-xl transition-colors">Approve</button>
@@ -379,6 +391,29 @@ const AdminDashboard = () => {
         {/* ================= TAB 4: MEDIA GALLERY ================= */}
         {activeTab === 'media' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* NEW HERO SLIDER DISPLAY SETTINGS PANEL */}
+            <div className="lg:col-span-3 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between mb-2">
+              <div>
+                <h3 className="text-lg font-bold text-brand-navy">Hero Slider Display Mode</h3>
+                <p className="text-sm text-gray-500">Control what visitors see in the Main Home Page Slider.</p>
+              </div>
+              <div className="flex bg-slate-50 p-1 rounded-xl shadow-inner border border-slate-200 mt-4 md:mt-0">
+                {['all', 'videos', 'images'].map(type => (
+                  <button
+                    key={type}
+                    onClick={() => updateHeroDisplayMode(type)}
+                    disabled={isLoading}
+                    className={`px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-300 ${
+                      currentHeroMode === type ? 'bg-white text-[#4f46e5] shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    {type === 'all' ? 'Mixmatch (Both)' : `Only ${type}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="lg:col-span-1 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 h-fit">
               <h3 className="text-lg font-bold mb-4 text-brand-navy">Upload Media</h3>
               <form onSubmit={handleAddGallery} className="flex flex-col gap-4">
@@ -399,10 +434,9 @@ const AdminDashboard = () => {
                   <select value={newGallery.category} onChange={e => setNewGallery({...newGallery, category: e.target.value})} className="p-3 border rounded-xl bg-gray-50 text-slate-800 outline-none focus:ring-2 focus:ring-[#4f46e5]">
                     {newGallery.theme_id === 'home' ? (
                       <>
-                        <option value="featured_events">Featured Events Glimpse</option>
+                        <option value="hero_slider_video">Hero Slider Media (Images or MP4)</option>
+                        <option value="featured_events">Instagram video home section featured event</option>
                         <option value="cta_image">Call To Action Image</option>
-                        <option value="hero_video">Main Background Video (.mp4)</option>
-                        <option value="hero_slider_video">Small Slider Videos (.mp4)</option>
                       </>
                     ) : (
                       <>
@@ -414,30 +448,52 @@ const AdminDashboard = () => {
                   </select>
                 )}
               
-                <input type="text" placeholder="Image Title/Tag" required value={newGallery.title} onChange={e => setNewGallery({...newGallery, title: e.target.value})} className="p-3 border rounded-xl bg-gray-50 text-slate-800 outline-none" />
-                <textarea placeholder="Description (Optional)" value={newGallery.description || ''} onChange={e => setNewGallery({...newGallery, description: e.target.value})} className="p-3 border rounded-xl bg-gray-50 text-slate-800 h-20 outline-none" />
-                <input type="file" required ref={fileInputRef} onChange={e => setUploadFile(e.target.files[0])} className="text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                <input type="text" placeholder="Image/Video Title" required value={newGallery.title} onChange={e => setNewGallery({...newGallery, title: e.target.value})} className="p-3 border rounded-xl bg-gray-50 text-slate-800 outline-none focus:ring-2 focus:ring-[#4f46e5]" />
+                
+                {newGallery.category === 'featured_events' && (
+                  <div className="grid grid-cols-2 gap-3 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                    <input type="text" placeholder="Location (e.g. Mumbai)" value={newGallery.location} onChange={e => setNewGallery({...newGallery, location: e.target.value})} className="col-span-2 p-3 border border-slate-200 rounded-lg text-sm outline-none focus:ring-1 focus:ring-blue-400" />
+                    <input type="url" placeholder="Instagram Link" value={newGallery.ig_link} onChange={e => setNewGallery({...newGallery, ig_link: e.target.value})} className="col-span-2 p-3 border border-slate-200 rounded-lg text-sm outline-none focus:ring-1 focus:ring-blue-400" />
+                    <input type="text" placeholder="Tag (e.g. Corporate)" value={newGallery.tag} onChange={e => setNewGallery({...newGallery, tag: e.target.value})} className="p-3 border border-slate-200 rounded-lg text-sm outline-none focus:ring-1 focus:ring-blue-400" />
+                    <select value={newGallery.tagColor} onChange={e => setNewGallery({...newGallery, tagColor: e.target.value})} className="p-3 border border-slate-200 rounded-lg text-sm outline-none focus:ring-1 focus:ring-blue-400">
+                      <option value="text-cyan-600">Cyan</option>
+                      <option value="text-pink-600">Pink</option>
+                      <option value="text-purple-600">Purple</option>
+                      <option value="text-blue-600">Blue</option>
+                      <option value="text-amber-600">Amber</option>
+                    </select>
+                  </div>
+                )}
+
+                <textarea placeholder="Description (Optional)" value={newGallery.description || ''} onChange={e => setNewGallery({...newGallery, description: e.target.value})} className="p-3 border rounded-xl bg-gray-50 text-slate-800 h-20 outline-none focus:ring-2 focus:ring-[#4f46e5]" />
+                
+                <input type="file" required accept="image/*,video/mp4,video/webm" ref={fileInputRef} onChange={e => setUploadFile(e.target.files[0])} className="text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                
                 <button type="submit" disabled={isLoading} className="bg-[#4f46e5] text-white font-bold py-3.5 rounded-xl hover:bg-[#4338ca] mt-2 transition-colors shadow-md">{isLoading ? 'Uploading...' : 'Upload Media'}</button>
               </form>
             </div>
             
             <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4">
-              {gallery.map(img => (
-                <div key={img.id} className="relative group rounded-2xl overflow-hidden shadow-sm h-48 bg-gray-100">
-                  {img.category?.includes('video') ? (
-                    <video src={img.image_url} className="w-full h-full object-cover" muted />
-                  ) : (
-                    <img src={img.image_url} alt={img.title} className="w-full h-full object-cover" />
-                  )}
-                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 p-4 flex flex-col justify-between transition-opacity duration-300">
-                    <div>
-                      <span className="text-[9px] font-bold bg-white/20 text-white px-2 py-1 rounded uppercase tracking-wider">{img.theme_id} {img.category ? `- ${img.category}` : ''}</span>
-                      <h4 className="text-white font-bold text-sm mt-2">{img.title}</h4>
+              {gallery.map(img => {
+                const isVideo = img.category?.includes('video') || img.category === 'featured_events' || img.image_url?.endsWith('.mp4');
+
+                return (
+                  <div key={img.id} className="relative group rounded-2xl overflow-hidden shadow-sm h-48 bg-slate-900 border border-slate-200">
+                    {isVideo ? (
+                      <video src={img.video_url || img.image_url} className="w-full h-full object-cover" muted loop autoPlay playsInline />
+                    ) : (
+                      <img src={img.image_url} alt={img.title} className="w-full h-full object-cover" />
+                    )}
+                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 p-4 flex flex-col justify-between transition-opacity duration-300">
+                      <div>
+                        <span className="text-[9px] font-bold bg-white/20 text-white px-2 py-1 rounded uppercase tracking-wider">{img.theme_id} {img.category ? `- ${img.category}` : ''}</span>
+                        <h4 className="text-white font-bold text-sm mt-2">{img.title}</h4>
+                      </div>
+                      <button onClick={() => handleDelete('gallery_images', img.id)} className="bg-red-500 text-white text-xs font-bold py-1.5 px-4 rounded-full self-start hover:bg-red-600">Delete</button>
                     </div>
-                    <button onClick={() => handleDelete('gallery_images', img.id)} className="bg-red-500 text-white text-xs font-bold py-1.5 px-4 rounded-full self-start hover:bg-red-600">Delete</button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

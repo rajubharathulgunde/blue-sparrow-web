@@ -1,24 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../../lib/supabase';
-
-// Reusable Dual-Tone Star doodle
-const DualToneStar = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="dualToneGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#f472b6" /> {/* Pink */}
-        <stop offset="100%" stopColor="#fbbf24" /> {/* Yellow */}
-      </linearGradient>
-    </defs>
-    <path d="M12 1L13.8 8.5L21 10L13.8 11.5L12 19L10.2 11.5L3 10L10.2 8.5L12 1Z" fill="url(#dualToneGrad2)" />
-  </svg>
-);
 
 const FeaturedEventsSection = () => {
   const scrollContainerRef = useRef(null);
   const [dbEvents, setDbEvents] = useState([]);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -38,117 +25,180 @@ const FeaturedEventsSection = () => {
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 380;
+      const scrollAmount = 412; 
       scrollContainerRef.current.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
     }
   };
 
+  useEffect(() => {
+    if (isHovered) return; 
+
+    const interval = setInterval(() => {
+      if (scrollContainerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+        const maxScroll = scrollWidth - clientWidth;
+        
+        if (scrollLeft >= maxScroll - 10) {
+          scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          scrollContainerRef.current.scrollBy({ left: 412, behavior: 'smooth' });
+        }
+      }
+    }, 3500); 
+
+    return () => clearInterval(interval);
+  }, [isHovered]);
+
+  // POINTED TO YOUR LOCAL FOLDER AND FILES
   const fallbackEvents = [
-    { id: 1, link: "/corporate", image_url: "/assets/Blue_Sparrow_Corporate_Events_Complete_Workshop_Brochure.pdf/14.jpg", tag: "Corporate", tagColor: "text-[#4f46e5]", bgClass: "bg-[#f0f9ff]", title: "Modern Planter Painting", description: "Paint a ceramic planter with easy botanical motifs and take home a stylish desk accessory.", location: "Mumbai" },
-    { id: 2, link: "/kids-parties", image_url: "/assets/Bluesparrow_Party_Themes_Catalogue.pdf/3.jpg", tag: "Kids Party", tagColor: "text-[#ec4899]", bgClass: "bg-[#fff1f2]", title: "Frozen Princess Party", description: "A magical celebration filled with wonder, creativity & icy fun! Includes Snow Volcanoes & Wands.", location: "Delhi" },
-    { id: 3, link: "/carnivals", image_url: "/assets/carnivals 2026.pdf/10.jpg", tag: "Carnival", tagColor: "text-[#10b981]", bgClass: "bg-[#f0fdf4]", title: "The Great Candy Factory", description: "A colourful factory mission combining sensory discovery, sorting, art and collaborative engineering.", location: "Bangalore" },
-    { id: 4, link: "/family-discovery", image_url: "/assets/family-day (1).pdf/4.jpg", tag: "Discovery", tagColor: "text-[#f97316]", bgClass: "bg-[#fff7ed]", title: "Crazy Science Laboratory", description: "A high-energy STEM world packed with experiments, physics challenges and live science moments.", location: "Hyderabad" }
+    { 
+      id: 1, 
+      video_url: "/assets/ig videos/Alien Invasion experience zone built and executed by Bluesparrow parties for Hamleys WonderlandL.mp4", 
+      ig_link: "https://www.instagram.com/reel/DKwksq9scgF/", 
+      tag: "Immersive", tagColor: "text-cyan-600", 
+      title: "Alien Invasion Zone", 
+      description: "Step into an extraterrestrial adventure with cinematic production and immersive tech, curated for Hamleys Wonderland.", 
+      location: "Mumbai" 
+    },
+    { 
+      id: 2, 
+      video_url: "/assets/ig videos/Another STEM Fair at Abbott in the books 🚀Last week was one of those days where everything just.mp4", 
+      ig_link: "https://www.instagram.com/reel/DRJWR-ODBDS/", 
+      tag: "Corporate", tagColor: "text-blue-600", 
+      title: "STEM Fair at Abbott", 
+      description: "Connecting bright minds with future solutions. A high-impact corporate science fair, designed to inspire innovation.", 
+      location: "Delhi" 
+    },
+    { 
+      id: 3, 
+      video_url: "/assets/ig videos/Gratitude in every shade of blue! 🎉 Thank you Megha kulchandani,for curating an inventors lab.mp4", 
+      ig_link: "https://www.instagram.com/reel/DSq9oztk-dQ/", 
+      tag: "Innovation", tagColor: "text-purple-600", 
+      title: "The Inventors Lab", 
+      description: "Unlock creativity and fuel the maker mindset. A collaborative space where big ideas are hand-crafted into reality.", 
+      location: "Bangalore" 
+    },
+    { 
+      id: 4, 
+      video_url: "/assets/ig videos/If your child would love to hitchhike to the space, why not bring the galaxy to them!At our Sp.mp4", 
+      ig_link: "https://www.instagram.com/reel/C3PYV-CISKe/", 
+      tag: "Discovery", tagColor: "text-pink-600", 
+      title: "A Hitchhiker's Guide to Space", 
+      description: "Fueling cosmic dreams. Bring the wonders of the universe directly to your child with our interactive space experience.", 
+      location: "Pune" 
+    },
+    { 
+      id: 5, 
+      video_url: "/assets/ig videos/We turned hamleysplay into a world of fun! 🎉 Our in-store activation made kids and families smi.mp4", 
+      ig_link: "https://www.instagram.com/reel/C6VZ3N2IgFu/", 
+      tag: "Retail", tagColor: "text-amber-600", 
+      title: "Hamleys Play Takeover", 
+      description: "Elevating retail experiences with in-store magic, interactive play, and endless smiles for families.", 
+      location: "Hyderabad" 
+    }
   ];
 
   const displayEvents = dbEvents.length > 0 ? dbEvents : fallbackEvents;
 
-  const colorCycles = [
-    { tagColor: "text-[#4f46e5]", bgClass: "bg-[#f0f9ff]" },
-    { tagColor: "text-[#ec4899]", bgClass: "bg-[#fff1f2]" },
-    { tagColor: "text-[#10b981]", bgClass: "bg-[#f0fdf4]" },
-    { tagColor: "text-[#f97316]", bgClass: "bg-[#fff7ed]" }
-  ];
-
   return (
-    <section className="py-24 px-6 lg:px-12 bg-white relative overflow-hidden font-sans border-t border-gray-50">
-      
-      {/* Background Magic Elements constructed with pure CSS */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-blue-50 to-transparent rounded-full blur-3xl opacity-60 pointer-events-none translate-x-1/3 -translate-y-1/3 z-0"></div>
-      <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-gradient-to-tr from-pink-50 to-transparent rounded-full blur-3xl opacity-60 pointer-events-none z-0"></div>
-      
-      {/* Abstract CSS curved doodle behind header */}
-      <div className="absolute top-[10%] left-[10%] w-[40vw] h-[20vw] border-t-[3px] border-l-[3px] border-dashed border-purple-100 rounded-tl-full opacity-40 z-0 pointer-events-none"></div>
+    <section className="py-24 lg:py-32 px-6 lg:px-12 bg-[#f8fafc] relative overflow-hidden font-sans border-t border-slate-100">
+      <div className="absolute top-[10%] right-[-5%] w-[40vw] h-[40vw] bg-cyan-400/10 blur-[140px] rounded-full pointer-events-none z-0"></div>
+      <div className="absolute bottom-[-10%] left-[-5%] w-[30vw] h-[30vw] bg-pink-400/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
-      {/* Animated Header & Functional Navigation Buttons */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 relative z-10"
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6 relative z-10"
       >
          <div className="relative">
-           {/* Floating Star Doodles around Title */}
-           <DualToneStar className="absolute -top-6 -left-6 w-6 h-6 animate-pulse opacity-80" />
-           <div className="absolute top-2 -right-8 w-3 h-3 bg-blue-300 rounded-full opacity-60"></div>
-
-           <h2 className="text-[36px] md:text-[42px] font-serif font-bold text-[#1e293b] mb-2 relative inline-block">
+           <span className="text-cyan-600 font-bold tracking-[0.2em] uppercase text-[11px] mb-4 block">
+             Captured Magic
+           </span>
+           <h2 className="text-[36px] md:text-[48px] font-sans font-extrabold text-slate-900 mb-2 tracking-tight">
              Featured Events
-             {/* Highlighter loop under text */}
-             <div className="absolute -bottom-1 left-0 w-full h-2 border-b-[3px] border-pink-200 rounded-full opacity-70 rotate-[-1deg] z-[-1]"></div>
            </h2>
-           <p className="text-gray-500 text-[16px] font-light">Glimpses of the magic we create</p>
+           <p className="text-slate-500 text-[16px] md:text-[18px] font-medium">
+             Glimpses of the extraordinary worlds we build.
+           </p>
          </div>
+         
          <div className="flex gap-3">
-           <button onClick={() => scroll(-1)} className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-white hover:border-pink-300 hover:text-[#ec4899] transition-all shadow-sm active:scale-95 z-10 relative overflow-hidden group">
-             <div className="absolute inset-0 bg-pink-50 translate-y-full group-hover:translate-y-0 transition-transform z-[-1]"></div>
+           <button onClick={() => scroll(-1)} className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-[0_4px_10px_rgba(0,0,0,0.03)] active:scale-95 z-10">
              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
            </button>
-           <button onClick={() => scroll(1)} className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-white hover:border-blue-300 hover:text-[#3b82f6] transition-all shadow-sm active:scale-95 z-10 relative overflow-hidden group">
-             <div className="absolute inset-0 bg-blue-50 translate-y-full group-hover:translate-y-0 transition-transform z-[-1]"></div>
+           <button onClick={() => scroll(1)} className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-[0_4px_10px_rgba(0,0,0,0.03)] active:scale-95 z-10">
              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
            </button>
          </div>
       </motion.div>
 
-      {/* The Scrollable Grid */}
       <div 
         ref={scrollContainerRef} 
-        className="max-w-7xl mx-auto flex overflow-x-auto gap-8 pb-10 hide-scrollbar snap-x snap-mandatory scroll-smooth relative z-10 pt-4"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="max-w-[1440px] mx-auto flex overflow-x-auto gap-8 pb-12 hide-scrollbar snap-x snap-mandatory scroll-smooth relative z-10"
       >
         <AnimatePresence>
-          {displayEvents.map((event, index) => {
-            const themeStyle = event.bgClass ? event : colorCycles[index % 4];
-            
-            return (
-              <motion.div
-                layout
-                key={event.id || index}
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: index * 0.15 }}
-                className="min-w-[320px] md:min-w-[360px] snap-center block h-full"
-              >
-                <Link to={event.link || "/portfolio"} className="bg-white rounded-[32px] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-gray-50 hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-500 h-full flex flex-col group cursor-pointer block relative">
+          {displayEvents.map((event, index) => (
+            <motion.div
+              layout
+              key={event.id || index}
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="min-w-[320px] md:min-w-[380px] snap-center block h-full group"
+            >
+              <div className="bg-white rounded-[40px] p-4 shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-slate-100 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition-all duration-500 h-full flex flex-col relative transform hover:-translate-y-1">
+                
+                <div className="w-full aspect-[9/16] max-h-[550px] rounded-[32px] overflow-hidden relative mb-6 bg-slate-900 border-[4px] border-slate-50 shadow-inner">
+                  <video 
+                    src={event.video_url || event.image_url} 
+                    className="w-full h-full object-cover absolute inset-0 bg-slate-900"
+                    autoPlay 
+                    loop 
+                    muted 
+                    playsInline
+                  />
                   
-                  {/* Subtle CSS hover sparkles that appear on hover */}
-                  <div className="absolute -top-3 -right-3 text-yellow-300 text-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 rotate-12 z-10">✨</div>
-                  <div className="absolute top-1/2 -left-4 text-blue-300 text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 -rotate-12 z-10">✦</div>
-
-                  <div className={`w-full aspect-[3/4] md:aspect-[9/16] max-h-[450px] rounded-[24px] overflow-hidden relative mb-5 ${themeStyle.bgClass}`}>
-                    <img 
-                      src={event.image_url || event.imgSrc} 
-                      onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1519335359739-16629737f909?w=800&q=80"; }}
-                      alt={event.title} 
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
-                    />
-                    <span className={`absolute bottom-4 left-4 bg-white/95 backdrop-blur-md ${themeStyle.tagColor} text-[11px] font-bold px-3.5 py-1.5 rounded-full shadow-sm tracking-wide uppercase`}>
-                      {event.tag || event.category || "Featured"}
+                  <div className="absolute top-4 right-4 pointer-events-none z-20">
+                    <span className={`bg-white/90 backdrop-blur-md ${event.tagColor || 'text-cyan-600'} text-[10px] font-extrabold px-4 py-2 rounded-full shadow-sm tracking-widest uppercase border border-white/50`}>
+                      {event.tag || "Featured"}
                     </span>
                   </div>
-                  <div className="px-2 pb-2 flex-grow flex flex-col relative z-10">
-                    <h4 className="font-serif font-bold text-[#1e293b] text-[22px] mb-2 leading-tight group-hover:text-[#4f46e5] transition-colors">{event.title}</h4>
-                    <p className="text-[14px] text-gray-500 mb-4 leading-relaxed flex-grow">{event.description || event.desc}</p>
-                    <p className="text-[13px] text-gray-400 flex items-center gap-1.5 font-medium mt-auto">
-                      <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> 
-                      {event.location || "Multiple Locations"}
+                </div>
+
+                <div className="px-4 pb-4 flex-grow flex flex-col relative z-10">
+                  <h4 className="font-sans font-bold text-slate-900 text-[22px] mb-2 leading-tight group-hover:text-cyan-600 transition-colors">
+                    {event.title}
+                  </h4>
+                  <p className="text-[15px] text-slate-500 mb-5 leading-relaxed flex-grow font-medium">
+                    {event.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+                    <p className="text-[12px] text-slate-400 flex items-center gap-1.5 font-bold uppercase tracking-wider">
+                      <svg className="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> 
+                      {event.location || "Featured Location"}
                     </p>
+
+                    <a 
+                      href={event.ig_link || "https://instagram.com/bluesparrowevents"} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-slate-50 hover:bg-pink-50 text-slate-600 hover:text-pink-600 text-[11px] font-bold px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                      Instagram
+                    </a>
                   </div>
-                </Link>
-              </motion.div>
-            );
-          })}
+                </div>
+
+              </div>
+            </motion.div>
+          ))}
         </AnimatePresence>
       </div>
     </section>

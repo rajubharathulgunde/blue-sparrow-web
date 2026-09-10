@@ -33,7 +33,7 @@ function App() {
         <Route path="/kids-parties" element={<KidsPartyView />} />
         <Route path="/carnivals" element={<CarnivalsView />} />
         <Route path="/malls" element={<MallsView />} />
-        <Route path="/family-discovery" element={<FamilyDiscoveryView />} />
+        <Route path="/family-day" element={<FamilyDiscoveryView />} />
         
         <Route path="/portfolio" element={<PortfolioView />} />
         <Route path="/portfolio/gallery" element={<PortfolioView />} />

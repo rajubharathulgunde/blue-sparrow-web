@@ -61,7 +61,7 @@ const ExperiencesView = () => {
         <div className="max-w-4xl mx-auto text-center">
           <span className="text-[#4f46e5] font-bold tracking-widest uppercase text-xs mb-3 block">Immersive Worlds</span>
           <h1 className="text-4xl md:text-6xl font-serif font-bold text-brand-navy mb-6 tracking-tight">
-            Curated <span className="text-pink-500 italic">Experiences</span>
+            Curated <span className="text-pink-500 italic">Themes</span>
           </h1>
           <p className="text-lg text-gray-500 font-light max-w-2xl mx-auto">
             From bubbling potions to royal ballrooms, we build end-to-end thematic worlds that transport kids into their favorite imaginations.
