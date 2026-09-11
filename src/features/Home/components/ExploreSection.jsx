@@ -42,7 +42,6 @@ const ExploreSection = () => {
     icon: "With Love, Blue Sparrow"
   };
 
-  // ALL 8 CATEGORIES WITH IMAGES
   const defaultExplore = [
     { id: 'e1', title: "Mad Science Lab", description: "Potions & Experiments", image_url: "/assets/Science2.png", link: "/theme/science" },
     { id: 'e2', title: "Wizarding Academy", description: "Spells & Magic", image_url: "/assets/wizarding.png", link: "/theme/wizarding" },
@@ -72,49 +71,79 @@ const ExploreSection = () => {
   return (
     <section className="py-24 lg:py-32 bg-[#f8fafc] relative z-20 overflow-hidden font-sans">
       
-      {/* Soft Premium Ambient Glows */}
       <div className="absolute top-[5%] left-[-5%] w-[40vw] h-[40vw] bg-cyan-400/10 blur-[140px] rounded-full z-0 pointer-events-none"></div>
       <div className="absolute bottom-[5%] right-[-5%] w-[30vw] h-[30vw] bg-pink-400/10 blur-[120px] rounded-full z-0 pointer-events-none"></div>
 
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
         
-        {/* ================= 1. PREMIUM CURATOR NOTE ================= */}
+        {/* ================= 1. PREMIUM CURATOR NOTE (EDITORIAL DESIGN) ================= */}
         <motion.div 
           initial={{ opacity: 0, y: 40 }} 
           whileInView={{ opacity: 1, y: 0 }} 
           viewport={{ once: true }} 
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center bg-white p-8 md:p-12 lg:p-16 rounded-[48px] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 mb-32 relative"
+          className="flex flex-col lg:flex-row w-full bg-[#fff6f0] mb-32 overflow-hidden shadow-sm"
         >
-          {/* Large Clean Image */}
-          <div className="w-full lg:w-[40%] relative shrink-0">
-            <div className="w-full aspect-square md:aspect-[4/5] bg-slate-100 rounded-[32px] md:rounded-[40px] overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.1)] relative border-4 border-white">
+          {/* LEFT: Geometric Image Container */}
+          <div className="w-full lg:w-[35%] relative min-h-[350px] lg:min-h-[450px] flex items-end justify-center bg-white lg:bg-transparent">
+            
+            {/* The bold, angled background shape (Customer.io style) */}
+            <div 
+              className="absolute bottom-0 left-0 w-full h-[85%] bg-[#f97316] hidden lg:block" 
+              style={{ clipPath: 'polygon(0 25%, 100% 0, 100% 100%, 0 100%)' }}
+            ></div>
+            
+            {/* Image clipped cleanly to match the geometric aesthetic even with rectangular photos */}
+            <div 
+              className="relative z-10 w-full h-full lg:w-[90%] lg:h-[90%] overflow-hidden lg:mb-0"
+              style={{ clipPath: 'polygon(0 15%, 100% 0, 100% 100%, 0 100%)' }}
+            >
               <img 
                 src={displayCurator.image_url} 
                 alt="Curator" 
-                className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700 ease-out" 
+                className="w-full h-full object-cover object-center" 
                 onError={(e) => { e.target.src = defaultCurator.image_url; }} 
               />
             </div>
-            {/* Elegant Floating Element */}
-            <div className="absolute -bottom-6 -right-6 md:bottom-10 md:-right-10 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center justify-center">
-              <span className="text-3xl">✨</span>
-            </div>
           </div>
 
-          {/* Editorial Quote Text */}
-          <div className="w-full lg:w-[60%] flex flex-col justify-center text-center lg:text-left z-10">
-            <span className="text-[12px] md:text-[13px] font-bold text-cyan-600 uppercase tracking-[0.2em] mb-6">
-              {displayCurator.title}
-            </span>
+          {/* RIGHT: Text Content Area */}
+          <div className="w-full lg:w-[65%] p-10 md:p-14 lg:p-20 flex flex-col justify-center bg-[#fff6f0]">
             
-            <h3 className="text-[32px] md:text-[42px] lg:text-[48px] text-slate-800 font-serif leading-[1.2] mb-10 tracking-tight">
-              "{displayCurator.description}"
-            </h3>
+            {/* The Top Stats Header */}
+            <div className="flex flex-wrap gap-8 md:gap-12 mb-10 border-b border-orange-200/60 pb-6 w-full max-w-xl">
+              <div>
+                <span className="block text-[28px] font-sans font-bold text-slate-800">500+</span>
+                <span className="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Events Delivered</span>
+              </div>
+              <div className="w-px h-12 bg-orange-200/60 hidden md:block"></div>
+              <div>
+                <span className="block text-[28px] font-sans font-bold text-slate-800">100K+</span>
+                <span className="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Smiles Crafted</span>
+              </div>
+            </div>
+
+            <div className="relative">
+              {/* Massive Quote Mark */}
+              <div className="text-[120px] font-serif leading-none text-slate-800 opacity-10 absolute -top-16 -left-6 pointer-events-none">
+                &ldquo;
+              </div>
+              
+              <h3 className="text-[24px] md:text-[28px] lg:text-[32px] text-slate-800 font-medium leading-[1.4] mb-10 z-10 relative">
+                {displayCurator.description}
+              </h3>
+            </div>
             
-            <p className="font-sans font-bold text-slate-400 text-lg uppercase tracking-wider">
-              — {displayCurator.icon}
-            </p>
+            <div className="mt-auto flex items-center justify-between border-t border-transparent pt-4">
+              <div>
+                <p className="font-bold text-slate-900 text-[16px] mb-0.5">{displayCurator.icon}</p>
+                <p className="text-slate-500 text-[14px] font-medium">{displayCurator.title}</p>
+              </div>
+              <Link to="/about" className="text-[14px] font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 transition-colors">
+                Read our story &rarr;
+              </Link>
+            </div>
+            
           </div>
         </motion.div>
 
@@ -143,7 +172,6 @@ const ExploreSection = () => {
                 key={item.id || i} 
                 className="bg-white p-8 flex flex-col items-center justify-center text-center rounded-[32px] shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-slate-100 transform hover:-translate-y-2 transition-all duration-300 group"
               >
-                {/* PREMIUM CIRCULAR IMAGE CONTAINER */}
                 <div className="w-28 h-28 rounded-full bg-slate-50 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-500 relative shadow-inner p-1 border-2 border-slate-50">
                   <img 
                     src={item.image_url} 
@@ -165,7 +193,6 @@ const ExploreSection = () => {
         </div>
 
         {/* ================= 3. WORKSHOP TICKETS (DISABLED FOR NOW) ================= */}
-        {/* To re-enable, simply remove the "false && (" at the top and the ")" at the bottom */}
         {false && (
           <div className="relative mt-32">
             <div className="text-center mb-16 relative z-10">
@@ -185,7 +212,6 @@ const ExploreSection = () => {
                   const place = details[1] || "Main Atrium";
                   const coordinator = details[2] || "Blue Sparrow Team";
                   
-                  // Sleek Gradient Top Bars
                   const gradients = [
                     'bg-gradient-to-r from-cyan-400 to-blue-500', 
                     'bg-gradient-to-r from-pink-400 to-rose-500', 
@@ -205,7 +231,6 @@ const ExploreSection = () => {
                       transition={{ duration: 0.5, delay: i * 0.1 }}
                       className="relative bg-white rounded-[32px] flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-slate-100 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transform hover:-translate-y-1 transition-all duration-300 overflow-hidden group"
                     >
-                      {/* Modern Top Color Bar */}
                       <div className={`w-full h-2 ${gradientBar}`}></div>
 
                       <div className="p-8 pb-6 flex-grow">
@@ -235,7 +260,6 @@ const ExploreSection = () => {
                         </div>
                       </div>
 
-                      {/* Minimalist Footer */}
                       <div className="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-between items-center transition-colors group-hover:bg-slate-100/50">
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                           Admit One
