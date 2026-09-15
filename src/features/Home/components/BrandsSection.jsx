@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const BrandsSection = () => {
-  const brands = ['Google', 'Microsoft', 'Amazon', 'Deloitte', 'Disney', 'Adobe', 'Apple', 'Spotify'];
+  const brands = ['Hamleys Play', 'Ritu Kumar', 'Reliance', 'Satya Paul', 'CRISIL', 'Hamleys', 'Cisco Webex', 'Accenture'];
   const duplicatedBrands = [...brands, ...brands, ...brands];
 
   return (

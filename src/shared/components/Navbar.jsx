@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -10,19 +10,20 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 w-[98%] max-w-[1400px] bg-white/90 backdrop-blur-xl border border-white/60 rounded-full shadow-soft flex items-center justify-between px-4 lg:px-6 py-3 z-[60] transition-all duration-500">
+      <nav className="absolute top-6 left-1/2 transform -translate-x-1/2 w-[98%] max-w-[1400px] bg-white/90 backdrop-blur-xl border border-white/60 rounded-full shadow-soft flex items-center justify-between px-4 lg:px-6 py-3 z-[60] transition-all duration-500">
         
         {/* LEFT: Logo Section */}
-        <Link to="/" onClick={closeMenu} className="flex items-center gap-3 cursor-pointer group shrink-0">
-          <div className="flex flex-col justify-center">
-            <span className="text-brand-navy font-serif font-bold text-lg xl:text-xl leading-none tracking-tight">
-              Blue Sparrow
-            </span>
-            <span className="text-[#4f46e5] font-sans text-[8px] xl:text-[9px] font-semibold tracking-[0.3em] uppercase mt-1 leading-none">
-              Events
-            </span>
-          </div>
-        </Link>
+     <Link
+  to="/"
+  onClick={closeMenu}
+  className="flex items-center gap-3 cursor-pointer group shrink-0"
+>
+  <text
+    Text="Blue Sparrow Events"
+    alt="Blue Sparrow Events"
+    className="h-12 xl:h-13 w-auto object-contain"
+  />
+</Link>
 
         {/* CENTER: Desktop Navigation Links */}
         <div className="hidden lg:flex items-center gap-3 xl:gap-5">

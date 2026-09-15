@@ -125,9 +125,9 @@ const HeroSection = () => {
           </div>
           
           <h1 className="text-[48px] sm:text-[64px] lg:text-[72px] xl:text-[84px] font-sans font-extrabold text-[#0f172a] leading-[1.02] tracking-tight mb-6 relative">
-            Where fun meets <br className="hidden sm:block" />
+            We Create <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-pink-500">
-              Fireworks & Science.
+              Experiences People Remember.
             </span>
           </h1>
           
@@ -152,8 +152,8 @@ const HeroSection = () => {
           <div className="flex flex-wrap items-center gap-x-8 gap-y-6 w-full pt-6 border-t border-slate-200/60">
             {[
               { icon: '500+', label: 'Events Delivered', color: 'text-cyan-500' },
-              { icon: '100K+', label: 'Happy Kids', color: 'text-pink-500' },
-              { icon: '50+', label: 'Corp Clients', color: 'text-blue-500' },
+              { icon: '1100+', label: 'Happy Kids', color: 'text-pink-500' },
+              { icon: '150+', label: 'Corp Clients', color: 'text-blue-500' },
               { icon: '12+', label: 'Years Magic', color: 'text-purple-500' }
             ].map((metric, i) => (
               <div key={i} className="flex flex-col relative group cursor-default">
