@@ -144,7 +144,8 @@ const ExperienceSlider = () => {
       className="
         relative
         w-full
-        min-h-[650px]
+        min-h-[500px]
+        sm:min-h-[600px]
         md:min-h-[720px]
         lg:min-h-[780px]
         overflow-hidden
@@ -170,13 +171,13 @@ const ExperienceSlider = () => {
           }}
           className="absolute inset-0"
         >
-          {/* Image with slow cinematic zoom */}
+          {/* Image with subtle cinematic zoom - Scaled down for mobile */}
           <motion.img
             key={`image-${currentExperience.id}`}
             src={currentExperience.src}
             alt={currentExperience.title}
             initial={{
-              scale: 1.08,
+              scale: 1.03, // Reduced from 1.08 to prevent massive zooming effect
             }}
             animate={{
               scale: 1,
@@ -225,7 +226,8 @@ const ExperienceSlider = () => {
               absolute
               inset-x-0
               bottom-0
-              h-[45%]
+              h-[60%]
+              sm:h-[45%]
               bg-gradient-to-t
               from-[#06152D]
               via-[#06152D]/60
@@ -248,17 +250,19 @@ const ExperienceSlider = () => {
           z-10
           mx-auto
           flex
-          min-h-[650px]
+          min-h-[500px]
+          sm:min-h-[600px]
           md:min-h-[720px]
           lg:min-h-[780px]
           max-w-[1400px]
           items-end
-          px-6
-          pb-28
-          pt-32
+          px-5
+          pb-24
+          pt-20
           sm:px-10
           md:px-14
           lg:px-20
+          sm:pb-28
           lg:pb-32
         "
       >
@@ -275,15 +279,16 @@ const ExperienceSlider = () => {
             "
           >
             {/* Eyebrow */}
-            <div className="mb-5 flex items-center gap-3">
-              <span className="h-px w-8 bg-white/60" />
+            <div className="mb-3 sm:mb-5 flex items-center gap-2 sm:gap-3">
+              <span className="h-px w-6 sm:w-8 bg-white/60" />
 
               <span
                 className="
-                  text-[10px]
+                  text-[9px]
                   font-semibold
                   uppercase
-                  tracking-[0.28em]
+                  tracking-[0.25em]
+                  sm:tracking-[0.28em]
                   text-white/70
                   sm:text-xs
                 "
@@ -297,9 +302,10 @@ const ExperienceSlider = () => {
               className="
                 max-w-3xl
                 font-serif
-                text-4xl
+                text-3xl
                 font-semibold
-                leading-[0.98]
+                leading-[1.1]
+                sm:leading-[0.98]
                 tracking-[-0.03em]
                 sm:text-5xl
                 md:text-6xl
@@ -312,10 +318,11 @@ const ExperienceSlider = () => {
             {/* Subtitle */}
             <p
               className="
-                mt-5
+                mt-3
+                sm:mt-5
                 max-w-xl
-                text-sm
-                leading-7
+                text-[13px]
+                leading-6
                 text-white/75
                 sm:text-base
                 md:text-lg
@@ -326,19 +333,23 @@ const ExperienceSlider = () => {
             </p>
 
             {/* CTA */}
-            <div className="mt-8">
+            <div className="mt-6 sm:mt-8">
               <Link
                 to={currentExperience.link}
                 className="
                   group
                   inline-flex
                   items-center
-                  gap-3
+                  gap-2
+                  sm:gap-3
                   rounded-full
                   bg-white
-                  px-6
-                  py-3.5
-                  text-sm
+                  px-5
+                  py-3
+                  sm:px-6
+                  sm:py-3.5
+                  text-[13px]
+                  sm:text-sm
                   font-semibold
                   text-[#071A36]
                   shadow-xl
@@ -354,8 +365,10 @@ const ExperienceSlider = () => {
                 <span
                   className="
                     flex
-                    h-6
-                    w-6
+                    h-5
+                    w-5
+                    sm:h-6
+                    sm:w-6
                     items-center
                     justify-center
                     rounded-full
@@ -381,9 +394,10 @@ const ExperienceSlider = () => {
       <div
         className="
           absolute
-          bottom-8
-          left-6
-          right-6
+          bottom-6
+          left-5
+          right-5
+          sm:bottom-8
           z-20
           flex
           items-center
@@ -397,7 +411,7 @@ const ExperienceSlider = () => {
         "
       >
         {/* Progress indicators */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {experiences.map((experience, index) => {
             const isActive = currentIndex === index;
 
@@ -411,8 +425,9 @@ const ExperienceSlider = () => {
                 className="
                   group
                   relative
-                  h-1.5
-                  w-10
+                  h-1
+                  sm:h-1.5
+                  w-8
                   overflow-hidden
                   rounded-full
                   bg-white/25
@@ -465,7 +480,7 @@ const ExperienceSlider = () => {
         </div>
 
         {/* Previous / Next */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Previous */}
           <button
             type="button"
@@ -473,15 +488,16 @@ const ExperienceSlider = () => {
             aria-label="Previous experience"
             className="
               flex
-              h-10
-              w-10
+              h-8
+              w-8
               items-center
               justify-center
               rounded-full
               border
               border-white/30
               bg-white/10
-              text-lg
+              text-sm
+              sm:text-lg
               text-white
               backdrop-blur-md
               transition-all
@@ -502,15 +518,16 @@ const ExperienceSlider = () => {
             aria-label="Next experience"
             className="
               flex
-              h-10
-              w-10
+              h-8
+              w-8
               items-center
               justify-center
               rounded-full
               border
               border-white/30
               bg-white/10
-              text-lg
+              text-sm
+              sm:text-lg
               text-white
               backdrop-blur-md
               transition-all

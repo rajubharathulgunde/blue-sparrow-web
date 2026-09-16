@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../../shared/components/Navbar';
 import Footer from '../../../shared/components/Footer';
+import BrandLogo from '../../../shared/components/BrandLogo'; // Added BrandLogo import
 import { supabase } from '../../../lib/supabase';
 // import FaqBrochureSection from '../../Home/components/FaqBrochureSection'; // Commented out for now
 
@@ -45,7 +46,7 @@ const FloatingHeart = ({ left, delay, size, duration, color }) => (
     className={`absolute z-10 ${color} pointer-events-none drop-shadow-[0_0_15px_currentColor]`}
     style={{ left: `${left}%` }}
   >
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 md:w-12 md:h-12 opacity-80">
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 opacity-80">
       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
     </svg>
   </motion.div>
@@ -91,7 +92,7 @@ const FamilyDiscoveryView = () => {
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 450; 
+      const scrollAmount = window.innerWidth < 640 ? 250 : 450; 
       scrollContainerRef.current.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
     }
   };
@@ -100,10 +101,12 @@ const FamilyDiscoveryView = () => {
     const interval = setInterval(() => {
       if (scrollContainerRef.current) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+        const scrollAmount = window.innerWidth < 640 ? 250 : 450;
+        
         if (scrollLeft + clientWidth >= scrollWidth - 10) {
           scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
-          scrollContainerRef.current.scrollBy({ left: 450, behavior: 'smooth' });
+          scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
       }
     }, 4000); 
@@ -160,7 +163,8 @@ const FamilyDiscoveryView = () => {
   ];
 
   return (
-    <div className="font-sans text-gray-600 bg-[#fffbf7] min-h-screen flex flex-col selection:bg-rose-200 selection:text-brand-navy overflow-x-hidden w-full max-w-[100vw]">
+    <div className="font-sans text-gray-600 bg-[#fffbf7] min-h-screen flex flex-col selection:bg-rose-200 selection:text-brand-navy overflow-x-hidden w-full max-w-[100vw] relative">
+      <BrandLogo />
       <Navbar />
       
       {/* ================= FULL SCREEN NEON HERO ================= */}
@@ -178,9 +182,9 @@ const FamilyDiscoveryView = () => {
             }} 
           />
           {/* Dark gradient strictly on the left to make neon pop without blurring the image */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent w-full md:w-[65%] lg:w-[60%]"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 md:via-black/40 to-transparent w-full md:w-[70%] lg:w-[60%]"></div>
           {/* Bottom transition into the warm cream page background */}
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#fffbf7] to-transparent z-10"></div>
+          <div className="absolute inset-x-0 bottom-0 h-32 sm:h-40 bg-gradient-to-t from-[#fffbf7] to-transparent z-10"></div>
         </div>
 
         {/* Gently Floating Neon Hearts */}
@@ -191,94 +195,94 @@ const FamilyDiscoveryView = () => {
         </div>
 
         {/* Foreground Content - Shifted completely to the left edge */}
-        <div className="w-full px-6 sm:px-10 lg:pl-16 xl:pl-24 relative z-20 pt-28 pb-16 flex flex-col justify-center min-h-[95vh]">
+        <div className="w-full px-5 sm:px-10 lg:pl-16 xl:pl-24 relative z-20 pt-24 sm:pt-28 pb-16 flex flex-col justify-center min-h-[95vh]">
           
           <motion.div 
-            initial={{ opacity: 0, x: -50 }} 
+            initial={{ opacity: 0, x: -30 }} 
             animate={{ opacity: 1, x: 0 }} 
             transition={{ duration: 0.8, ease: "easeOut" }} 
-            className="w-full lg:w-[60%] xl:w-[50%] flex flex-col items-start text-left"
+            className="w-full lg:w-[65%] xl:w-[50%] flex flex-col items-start text-left mt-4 sm:mt-0"
           >
-            <NeonStar color="amber" className="absolute -top-6 left-[5%] w-8 h-8 animate-pulse opacity-90" />
-            <NeonStar color="rose" className="absolute top-[40%] right-[10%] w-5 h-5 animate-pulse opacity-70" />
+            <NeonStar color="amber" className="absolute -top-4 sm:-top-6 left-[5%] w-6 h-6 sm:w-8 sm:h-8 animate-pulse opacity-90" />
+            <NeonStar color="rose" className="absolute top-[40%] right-[10%] w-4 h-4 sm:w-5 sm:h-5 animate-pulse opacity-70" />
             
-            <span className="text-amber-300 font-bold tracking-[0.2em] uppercase text-[11px] md:text-sm mb-4 block drop-shadow-[0_0_8px_rgba(252,211,77,0.8)]">
+            <span className="text-amber-300 font-bold tracking-[0.2em] uppercase text-[9px] sm:text-[11px] md:text-sm mb-3 sm:mb-4 block drop-shadow-[0_0_8px_rgba(252,211,77,0.8)]">
               Family Day Experiences
             </span>
             
             {/* Glowing Neon Heading */}
-            <h1 className="text-[52px] sm:text-[64px] md:text-[80px] lg:text-[90px] font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-amber-400 leading-[1.05] tracking-tight mb-6 drop-shadow-[0_0_20px_rgba(244,63,94,0.6)]">
+            <h1 className="text-[42px] sm:text-[64px] md:text-[80px] lg:text-[90px] font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-amber-400 leading-[1.05] tracking-tight mb-4 sm:mb-6 drop-shadow-[0_0_20px_rgba(244,63,94,0.6)]">
               Cherish Every <br className="hidden sm:block"/> Beautiful Moment.
             </h1>
             
-            <p className="text-[15px] md:text-[17px] text-gray-100 max-w-xl font-medium leading-relaxed drop-shadow-md bg-black/30 p-5 rounded-2xl backdrop-blur-sm border border-white/10 mb-8">
+            <p className="text-[14px] sm:text-[15px] md:text-[17px] text-gray-100 max-w-xl font-medium leading-relaxed drop-shadow-md bg-black/50 sm:bg-black/30 p-4 sm:p-5 rounded-[16px] sm:rounded-2xl backdrop-blur-sm border border-white/10 mb-6 sm:mb-8">
               Life moves fast. We create safe, engaging, and wonder-filled environments where families can disconnect from the noise and reconnect with each other.
             </p>
 
-            <button onClick={() => window.scrollTo({ top: 850, behavior: 'smooth' })} className="mt-2 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-400 hover:to-amber-400 text-white font-bold py-4 px-10 rounded-full shadow-[0_0_20px_rgba(244,63,94,0.6)] hover:shadow-[0_0_30px_rgba(244,63,94,0.8)] transform hover:-translate-y-1 transition-all duration-300 text-[15px] tracking-wide border border-rose-300/50 flex items-center gap-3">
-              Explore Family Days <span className="text-lg">&rarr;</span>
+            <button onClick={() => window.scrollTo({ top: 850, behavior: 'smooth' })} className="mt-2 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-400 hover:to-amber-400 text-white font-bold py-3.5 sm:py-4 px-8 sm:px-10 rounded-full shadow-[0_0_20px_rgba(244,63,94,0.6)] hover:shadow-[0_0_30px_rgba(244,63,94,0.8)] transform hover:-translate-y-1 transition-all duration-300 text-[14px] sm:text-[15px] tracking-wide border border-rose-300/50 flex items-center gap-2 sm:gap-3">
+              Explore Family Days <span className="text-[16px] sm:text-lg">&rarr;</span>
             </button>
           </motion.div>
         </div>
       </section>
       
       {/* ================= EMOTIONAL VALUES ROW ================= */}
-      <section className="py-16 bg-[#fffbf7] relative z-20">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }} className="bg-white p-8 rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-rose-50 hover:shadow-[0_10px_30px_rgba(244,63,94,0.15)] transition-all group">
-            <div className="w-16 h-16 mx-auto bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(244,63,94,0.2)]">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+      <section className="py-12 sm:py-16 bg-[#fffbf7] relative z-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8 text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }} className="bg-white p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-rose-50 hover:shadow-[0_10px_30px_rgba(244,63,94,0.15)] transition-all group">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(244,63,94,0.2)]">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
             </div>
-            <h3 className="font-serif font-bold text-xl text-brand-navy mb-3 group-hover:text-rose-600 transition-colors">Deep Bonding</h3>
-            <p className="text-[15px] text-gray-500 font-light leading-relaxed">Activities designed specifically to encourage teamwork and laughter between parents and children.</p>
+            <h3 className="font-serif font-bold text-lg sm:text-xl text-brand-navy mb-2 sm:mb-3 group-hover:text-rose-600 transition-colors">Deep Bonding</h3>
+            <p className="text-[14px] sm:text-[15px] text-gray-500 font-light leading-relaxed">Activities designed specifically to encourage teamwork and laughter between parents and children.</p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }} className="bg-white p-8 rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-amber-50 hover:shadow-[0_10px_30px_rgba(245,158,11,0.15)] transition-all group">
-            <div className="w-16 h-16 mx-auto bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }} className="bg-white p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-amber-50 hover:shadow-[0_10px_30px_rgba(245,158,11,0.15)] transition-all group">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
             </div>
-            <h3 className="font-serif font-bold text-xl text-brand-navy mb-3 group-hover:text-amber-600 transition-colors">Shared Discovery</h3>
-            <p className="text-[15px] text-gray-500 font-light leading-relaxed">Watch their eyes light up as you explore interactive science, art, and nature worlds together.</p>
+            <h3 className="font-serif font-bold text-lg sm:text-xl text-brand-navy mb-2 sm:mb-3 group-hover:text-amber-600 transition-colors">Shared Discovery</h3>
+            <p className="text-[14px] sm:text-[15px] text-gray-500 font-light leading-relaxed">Watch their eyes light up as you explore interactive science, art, and nature worlds together.</p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }} className="bg-white p-8 rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-pink-50 hover:shadow-[0_10px_30px_rgba(236,72,153,0.15)] transition-all group">
-            <div className="w-16 h-16 mx-auto bg-pink-50 text-pink-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(236,72,153,0.2)]">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }} className="bg-white p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-pink-50 hover:shadow-[0_10px_30px_rgba(236,72,153,0.15)] transition-all group sm:col-span-2 md:col-span-1">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-pink-50 text-pink-500 rounded-full flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(236,72,153,0.2)]">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
-            <h3 className="font-serif font-bold text-xl text-brand-navy mb-3 group-hover:text-pink-600 transition-colors">Pure Joy</h3>
-            <p className="text-[15px] text-gray-500 font-light leading-relaxed">We handle all the planning and stress, leaving you free to simply be present and enjoy the smiles.</p>
+            <h3 className="font-serif font-bold text-lg sm:text-xl text-brand-navy mb-2 sm:mb-3 group-hover:text-pink-600 transition-colors">Pure Joy</h3>
+            <p className="text-[14px] sm:text-[15px] text-gray-500 font-light leading-relaxed">We handle all the planning and stress, leaving you free to simply be present and enjoy the smiles.</p>
           </motion.div>
         </div>
       </section>
 
       {/* ================= DYNAMIC AUTO IMAGE SLIDER ================= */}
-      <section className="py-20 bg-[#fffbf7] relative z-20 border-t border-rose-50/50">
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 flex justify-between items-end mb-12">
+      <section className="py-12 sm:py-20 bg-[#fffbf7] relative z-20 border-t border-rose-50/50">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 flex flex-col sm:flex-row sm:justify-between sm:items-end mb-8 sm:mb-12 gap-4">
            <div className="relative">
-             <NeonStar color="amber" className="absolute -top-4 -left-6 w-5 h-5 animate-pulse opacity-80" />
-             <h2 className="text-[36px] md:text-[42px] font-serif font-bold text-[#1e293b] mb-2 relative inline-block">
+             <NeonStar color="amber" className="absolute -top-3 -left-4 sm:-top-4 sm:-left-6 w-4 h-4 sm:w-5 sm:h-5 animate-pulse opacity-80" />
+             <h2 className="text-[28px] sm:text-[36px] md:text-[42px] font-serif font-bold text-[#1e293b] mb-1 sm:mb-2 relative inline-block leading-tight">
                Memories in the Making
-               <div className="absolute bottom-1 left-[-5%] w-[110%] h-3 bg-amber-100 opacity-60 rounded-full rotate-[1deg] z-[-1]"></div>
+               <div className="absolute bottom-0 sm:bottom-1 left-[-5%] w-[110%] h-2 sm:h-3 bg-amber-100 opacity-60 rounded-full rotate-[1deg] z-[-1]"></div>
              </h2>
-             <p className="text-gray-500 text-[16px] font-light">Glimpses of families exploring, learning, and laughing.</p>
+             <p className="text-gray-500 text-[13px] sm:text-[16px] font-light mt-1">Glimpses of families exploring, learning, and laughing.</p>
            </div>
-           <div className="flex gap-3 hidden md:flex">
-             <button onClick={() => scroll(-1)} className="w-12 h-12 rounded-full bg-white border border-rose-100 flex items-center justify-center text-gray-400 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-500 transition-all shadow-sm hover:shadow-[0_0_15px_rgba(244,63,94,0.2)]">
-               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+           <div className="hidden md:flex gap-3">
+             <button onClick={() => scroll(-1)} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-rose-100 flex items-center justify-center text-gray-400 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-500 transition-all shadow-sm hover:shadow-[0_0_15px_rgba(244,63,94,0.2)]">
+               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
              </button>
-             <button onClick={() => scroll(1)} className="w-12 h-12 rounded-full bg-white border border-rose-100 flex items-center justify-center text-gray-400 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-500 transition-all shadow-sm hover:shadow-[0_0_15px_rgba(244,63,94,0.2)]">
-               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+             <button onClick={() => scroll(1)} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-rose-100 flex items-center justify-center text-gray-400 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-500 transition-all shadow-sm hover:shadow-[0_0_15px_rgba(244,63,94,0.2)]">
+               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
              </button>
            </div>
         </div>
 
-        <div ref={scrollContainerRef} className="max-w-[1400px] mx-auto px-6 lg:px-12 flex overflow-x-auto gap-8 pb-10 hide-scrollbar snap-x snap-mandatory scroll-smooth relative z-10">
+        <div ref={scrollContainerRef} className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 flex overflow-x-auto gap-4 sm:gap-8 pb-8 sm:pb-10 hide-scrollbar snap-x snap-mandatory scroll-smooth relative z-10">
           <AnimatePresence>
             {displaySlider.map((img, i) => {
               if (hiddenCards.has(img.id)) return null;
 
               return (
-                <motion.div layout key={img.id || i} className="min-w-[320px] md:min-w-[480px] h-[300px] md:h-[380px] snap-center group relative rounded-[32px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] bg-gray-100 cursor-pointer border border-white">
+                <motion.div layout key={img.id || i} className="min-w-[240px] sm:min-w-[320px] md:min-w-[480px] h-[200px] sm:h-[300px] md:h-[380px] snap-center group relative rounded-[20px] sm:rounded-[32px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] bg-gray-100 cursor-pointer border border-white">
                   <img 
                     src={img.image_url || img.src} 
                     alt={img.title} 
@@ -287,11 +291,11 @@ const FamilyDiscoveryView = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#432c23]/80 via-transparent to-transparent opacity-90"></div>
                   
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <span className="bg-white/20 backdrop-blur-md text-white border border-white/30 text-[11px] font-bold px-4 py-1.5 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)] tracking-widest uppercase inline-block mb-3">
+                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6">
+                    <span className="bg-white/20 backdrop-blur-md text-white border border-white/30 text-[9px] sm:text-[11px] font-bold px-2 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)] tracking-widest uppercase inline-block mb-2 sm:mb-3">
                       {img.category || img.tag || "Discovery"}
                     </span>
-                    <h3 className="text-white text-2xl md:text-3xl font-serif font-bold drop-shadow-md">{img.title}</h3>
+                    <h3 className="text-white text-[18px] sm:text-2xl md:text-3xl font-serif font-bold drop-shadow-md">{img.title}</h3>
                   </div>
                 </motion.div>
               );
@@ -300,12 +304,13 @@ const FamilyDiscoveryView = () => {
         </div>
       </section>
 
-      {/* ================= DYNAMIC DISCOVERY WORLDS GRID ================= */}
-      <section className="pt-10 pb-32 px-6 lg:px-12 bg-[#fffbf7] relative z-20 border-b border-rose-50/50">
+      {/* ================= DYNAMIC DISCOVERY WORLDS GRID (RESPONSIVE MULTI-GRID) ================= */}
+      <section className="pt-6 sm:pt-10 pb-20 sm:pb-32 px-3 sm:px-6 lg:px-12 bg-[#fffbf7] relative z-20 border-b border-rose-50/50">
         
-        <div className="absolute top-[20%] right-[-5%] w-[40vw] h-[40vw] bg-rose-400/10 blur-[100px] rounded-full z-0 pointer-events-none"></div>
+        <div className="absolute top-[20%] right-[-5%] w-[80vw] sm:w-[40vw] h-[80vw] sm:h-[40vw] bg-rose-400/10 blur-[80px] sm:blur-[100px] rounded-full z-0 pointer-events-none"></div>
 
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative z-10">
+        {/* Forces 2 columns on mobile, expands to 3 on large screens */}
+        <div className="max-w-[1400px] mx-auto grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-10 relative z-10">
           <AnimatePresence>
             {displayCards.map((card, i) => {
               if (hiddenCards.has(card.id)) return null;
@@ -316,24 +321,33 @@ const FamilyDiscoveryView = () => {
                 <motion.div 
                   layout key={card.id || i}
                   initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: (i % 6) * 0.1, ease: "easeOut" }}
-                  className={`bg-white rounded-[40px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border ${color.border} hover:shadow-xl hover:-translate-y-2 transition-all duration-500 group flex flex-col`}
+                  className={`bg-white w-full rounded-[16px] sm:rounded-[40px] p-2 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border ${color.border} hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 transition-all duration-500 group flex flex-col`}
                 >
-                   <div className={`w-full aspect-[3/4] md:aspect-[9/16] max-h-[450px] rounded-[32px] overflow-hidden relative mb-6 ${color.bg}`}>
+                   {/* Image Aspect Box - Scaled for 2-column mobile */}
+                   <div className={`w-full aspect-[4/5] sm:aspect-[3/4] md:aspect-[9/16] max-h-[220px] sm:max-h-[450px] rounded-[10px] sm:rounded-[32px] overflow-hidden relative mb-2 sm:mb-6 ${color.bg}`}>
                      <img 
                        src={card.image_url} 
                        onError={() => handleImageError(card.id)}
                        alt={card.title} 
                        className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-1000 ease-out" 
                      />
-                     <span className={`absolute top-5 right-5 bg-white/90 backdrop-blur-md ${color.badge} text-[10px] tracking-wider font-bold px-4 py-2 rounded-full`}>
+                     <span className={`absolute top-2 right-2 sm:top-5 sm:right-5 bg-white/90 backdrop-blur-md ${color.badge} text-[7px] sm:text-[10px] tracking-wider font-bold px-1.5 py-0.5 sm:px-4 sm:py-2 rounded-full`}>
                        {card.icon || "FAMILY FUN"}
                      </span>
                    </div>
-                   <div className="px-2 pb-2 flex-grow flex flex-col">
-                     <h3 className={`font-serif font-bold text-brand-navy text-[24px] mb-3 leading-tight ${color.titleHover} transition-colors`}>{card.title}</h3>
-                     <p className="text-[14px] md:text-[15px] text-gray-500 mb-6 leading-relaxed flex-grow font-light">{card.description}</p>
-                     <button className={`${color.btnText} font-bold text-[14px] uppercase tracking-wider flex items-center gap-2 ${color.btnHover} transition-colors mt-auto drop-shadow-sm`}>
-                       Explore World <svg className="w-4 h-4 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                   
+                   <div className="px-1 sm:px-2 pb-1 sm:pb-2 flex-grow flex flex-col">
+                     <h3 className={`font-serif font-bold text-brand-navy text-[13px] sm:text-[24px] mb-1 sm:mb-3 leading-tight ${color.titleHover} transition-colors line-clamp-2 sm:line-clamp-none`}>
+                       {card.title}
+                     </h3>
+                     <p className="text-[10px] sm:text-[14px] md:text-[15px] text-gray-500 mb-2 sm:mb-6 leading-relaxed flex-grow font-light line-clamp-2 sm:line-clamp-none">
+                       {card.description}
+                     </p>
+                     
+                     <button className={`${color.btnText} font-bold text-[9px] sm:text-[14px] uppercase tracking-wider flex items-center gap-1 sm:gap-2 ${color.btnHover} transition-colors mt-auto drop-shadow-sm w-fit`}>
+                       <span className="hidden sm:inline">Explore World</span>
+                       <span className="sm:hidden">Explore</span>
+                       <svg className="w-3 h-3 sm:w-4 sm:h-4 transform group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                      </button>
                    </div>
                 </motion.div>

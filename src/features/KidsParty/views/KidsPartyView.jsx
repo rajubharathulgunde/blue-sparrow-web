@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../../shared/components/Navbar';
 import Footer from '../../../shared/components/Footer';
+import BrandLogo from '../../../shared/components/BrandLogo'; // Ensure correct path for your project
 import { supabase } from '../../../lib/supabase';
 // import FaqBrochureSection from '../../Home/components/FaqBrochureSection'; // Commented out for now
 
@@ -144,7 +145,7 @@ const KidsPartyView = () => {
             transition={{ duration: 0.8, ease: "easeInOut" }}
             className="fixed inset-0 z-[9999] bg-[#0f172a] flex flex-col items-center justify-center overflow-hidden"
           >
-            <div className="relative w-full max-w-2xl px-6 flex items-end justify-center mb-8">
+            <div className="relative w-full max-w-2xl px-6 flex items-end justify-center mb-6 sm:mb-8">
               <svg viewBox="0 0 1000 500" className="w-full h-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                 <motion.path d="M 50 500 A 450 450 0 0 1 950 500" stroke="#ef4444" strokeWidth="20" fill="none" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5, ease: "easeOut" }} />
                 <motion.path d="M 72 500 A 428 428 0 0 1 928 500" stroke="#f97316" strokeWidth="20" fill="none" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5, ease: "easeOut", delay: 0.1 }} />
@@ -155,15 +156,15 @@ const KidsPartyView = () => {
                 <motion.path d="M 182 500 A 318 318 0 0 1 818 500" stroke="#a855f7" strokeWidth="20" fill="none" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5, ease: "easeOut", delay: 0.6 }} />
               </svg>
 
-              <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }} transition={{ duration: 1.5, delay: 1.5, repeat: Infinity, repeatDelay: 1 }} className="absolute bottom-[5%] right-[5%] text-3xl md:text-5xl drop-shadow-md">✨</motion.div>
-              <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: [0, 1, 0], scale: [0, 1.2, 0] }} transition={{ duration: 1.5, delay: 1.8, repeat: Infinity, repeatDelay: 1 }} className="absolute bottom-[15%] right-[15%] text-4xl md:text-6xl drop-shadow-md">🌟</motion.div>
+              <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }} transition={{ duration: 1.5, delay: 1.5, repeat: Infinity, repeatDelay: 1 }} className="absolute bottom-[5%] right-[5%] text-2xl sm:text-3xl md:text-5xl drop-shadow-md">✨</motion.div>
+              <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: [0, 1, 0], scale: [0, 1.2, 0] }} transition={{ duration: 1.5, delay: 1.8, repeat: Infinity, repeatDelay: 1 }} className="absolute bottom-[15%] right-[15%] text-3xl sm:text-4xl md:text-6xl drop-shadow-md">🌟</motion.div>
             </div>
 
             <motion.h2 
               initial={{ opacity: 0, y: 20 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ delay: 1.5, duration: 1 }}
-              className="text-white font-serif text-3xl md:text-5xl font-bold mt-[-30px] z-10 tracking-widest drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]"
+              className="text-white font-serif text-[22px] sm:text-3xl md:text-5xl font-bold mt-[-20px] sm:mt-[-30px] z-10 tracking-widest drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] text-center px-4"
             >
               Welcome to the Magic
             </motion.h2>
@@ -171,10 +172,11 @@ const KidsPartyView = () => {
         )}
       </AnimatePresence>
 
+      <BrandLogo />
       <Navbar />
       
       {/* ================= FULL SCREEN NEON HERO SECTION ================= */}
-      <section className="relative w-full min-h-[95vh] flex items-center bg-[#0f172a] flex-grow">
+      <section className="relative w-full min-h-[95vh] flex items-center bg-[#0f172a] flex-grow overflow-hidden">
         
         {/* Full Screen Background Slideshow (NO white blur) */}
         <div className="absolute inset-0 z-0">
@@ -195,32 +197,32 @@ const KidsPartyView = () => {
             </motion.div>
           </AnimatePresence>
           
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent w-full md:w-[60%]"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent w-full md:w-[70%]"></div>
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent z-10"></div>
         </div>
 
         {/* Foreground Content - Shifted completely to the left edge */}
-        <div className="w-full px-6 lg:pl-12 xl:pl-20 relative z-20 pt-28 pb-16 flex flex-col justify-center min-h-[95vh]">
+        <div className="w-full px-5 sm:px-6 lg:pl-12 xl:pl-20 relative z-20 pt-28 sm:pt-28 pb-16 flex flex-col justify-center min-h-[95vh]">
           
           <motion.div 
             initial={{ opacity: 0, x: -50 }} 
             animate={{ opacity: 1, x: 0 }} 
             transition={{ duration: 1, delay: 3.2, ease: "easeOut" }} 
-            className="w-full lg:w-[60%] xl:w-[50%] flex flex-col items-start text-left"
+            className="w-full lg:w-[70%] xl:w-[50%] flex flex-col items-start text-left mt-8 sm:mt-0"
           >
-            <span className="text-[#06b6d4] font-bold tracking-widest uppercase text-sm mb-4 block drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
+            <span className="text-[#06b6d4] font-bold tracking-widest uppercase text-[10px] sm:text-sm mb-3 sm:mb-4 block drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
               Kids Parties
             </span>
             
-            <h1 className="text-6xl md:text-8xl lg:text-[100px] font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 leading-[1.1] mb-6 drop-shadow-[0_0_25px_rgba(236,72,153,0.8)]">
+            <h1 className="text-[44px] leading-[1.05] sm:text-6xl md:text-8xl lg:text-[100px] font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 sm:leading-[1.1] mb-5 sm:mb-6 drop-shadow-[0_0_25px_rgba(236,72,153,0.8)]">
               Magical Birthdays, <br className="hidden md:block"/> Come to Life.
             </h1>
             
-            <p className="text-lg text-gray-100 max-w-xl font-medium leading-relaxed drop-shadow-md bg-black/30 p-5 rounded-2xl backdrop-blur-sm border border-white/10">
+            <p className="text-[14px] sm:text-lg text-gray-100 max-w-xl font-medium leading-relaxed drop-shadow-md bg-black/40 sm:bg-black/30 p-4 sm:p-5 rounded-[16px] sm:rounded-2xl backdrop-blur-sm border border-white/10">
               From immersive decorations to engaging activities, we turn your child's favorite dreams and stories into unforgettable celebrations.
             </p>
 
-            <button className="mt-10 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white font-bold py-4 px-10 rounded-full shadow-[0_0_20px_rgba(236,72,153,0.6)] hover:shadow-[0_0_30px_rgba(236,72,153,0.8)] transform hover:-translate-y-1 transition-all duration-300 text-[16px] tracking-wide border border-pink-300/50">
+            <button className="mt-8 sm:mt-10 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white font-bold py-3.5 sm:py-4 px-8 sm:px-10 rounded-full shadow-[0_0_20px_rgba(236,72,153,0.6)] hover:shadow-[0_0_30px_rgba(236,72,153,0.8)] transform hover:-translate-y-1 transition-all duration-300 text-[14px] sm:text-[16px] tracking-wide border border-pink-300/50">
               Plan a Celebration ✨
             </button>
           </motion.div>
@@ -228,13 +230,13 @@ const KidsPartyView = () => {
       </section>
       
       {/* ================= DYNAMIC AUTO IMAGE SLIDER ================= */}
-      <section className="py-12 bg-white relative z-20 border-b border-gray-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-end mb-8">
+      <section className="py-10 sm:py-12 bg-white relative z-20 border-b border-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 sm:mb-8 gap-4">
            <div>
-             <h2 className="text-[28px] font-serif font-bold text-brand-navy mb-1">A Glimpse of the Magic</h2>
-             <p className="text-gray-500 text-[15px]">Kids enjoying space suits, lab experiments & celebrations!</p>
+             <h2 className="text-[24px] sm:text-[28px] font-serif font-bold text-brand-navy mb-1 leading-tight">A Glimpse of the Magic</h2>
+             <p className="text-gray-500 text-[13px] sm:text-[15px]">Kids enjoying space suits, lab experiments & celebrations!</p>
            </div>
-           <div className="flex gap-3 hidden md:flex">
+           <div className="hidden md:flex gap-3">
              <button onClick={() => scroll(-1)} className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm">
                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
              </button>
@@ -244,13 +246,13 @@ const KidsPartyView = () => {
            </div>
         </div>
 
-        <div ref={scrollContainerRef} className="max-w-7xl mx-auto px-6 lg:px-12 flex overflow-x-auto gap-6 pb-6 hide-scrollbar snap-x snap-mandatory scroll-smooth">
+        <div ref={scrollContainerRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex overflow-x-auto gap-4 sm:gap-6 pb-6 hide-scrollbar snap-x snap-mandatory scroll-smooth">
           <AnimatePresence>
             {displaySlider.map((img, i) => {
               if (hiddenCards.has(img.id)) return null;
 
               return (
-                <motion.div layout key={img.id || i} className="min-w-[280px] md:min-w-[320px] h-[220px] snap-center group relative rounded-3xl overflow-hidden shadow-soft">
+                <motion.div layout key={img.id || i} className="min-w-[220px] sm:min-w-[280px] md:min-w-[320px] h-[160px] sm:h-[220px] snap-center group relative rounded-[20px] sm:rounded-3xl overflow-hidden shadow-soft">
                   <img 
                     src={img.image_url || img.src} 
                     alt={img.title} 
@@ -258,7 +260,7 @@ const KidsPartyView = () => {
                     onError={() => handleImageError(img.id)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm text-pink-500 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm tracking-wider uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  <span className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white/90 backdrop-blur-sm text-pink-500 text-[9px] sm:text-[10px] font-bold px-2 sm:px-3 py-1 rounded-full shadow-sm tracking-wider uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
                     {img.title || img.tag}
                   </span>
                 </motion.div>
@@ -268,34 +270,49 @@ const KidsPartyView = () => {
         </div>
       </section>
 
-      {/* ================= DYNAMIC THEME CARDS GRID ================= */}
-      <section className="pt-16 pb-24 px-6 lg:px-12 bg-white relative z-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+      {/* ================= DYNAMIC THEME CARDS GRID (RESPONSIVE MULTI-GRID) ================= */}
+      <section className="pt-10 sm:pt-16 pb-20 sm:pb-24 px-4 sm:px-6 lg:px-12 bg-white relative z-20">
+        {/* Forces 2 columns on mobile, expands to 3 on large screens */}
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-10">
           <AnimatePresence>
             {displayCards.map((card, i) => {
-              // If the image failed to load, completely skip rendering this card
               if (hiddenCards.has(card.id)) return null;
 
               return (
-                <motion.div layout key={card.id || i} className="bg-white rounded-[32px] p-5 shadow-soft border border-gray-50 hover:shadow-soft-hover transition-all duration-500 group flex flex-col">
-                  <div className="w-full aspect-[3/4] md:aspect-[9/16] max-h-[500px] rounded-[24px] overflow-hidden relative mb-6 bg-gray-100">
+                <motion.div layout key={card.id || i} className="bg-white rounded-[16px] sm:rounded-[32px] p-2.5 sm:p-5 shadow-soft border border-gray-50 hover:shadow-soft-hover transition-all duration-500 group flex flex-col">
+                  
+                  {/* Image Aspect Box - Scaled for 2-column mobile */}
+                  <div className="w-full aspect-[4/5] sm:aspect-[3/4] md:aspect-[9/16] max-h-[250px] sm:max-h-[500px] rounded-[12px] sm:rounded-[24px] overflow-hidden relative mb-3 sm:mb-6 bg-gray-100">
                     <img 
                       src={card.image_url} 
                       alt={card.title} 
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
-                      onError={() => handleImageError(card.id)} // Triggers hiding mechanism
+                      onError={() => handleImageError(card.id)}
                     />
-                    <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-pink-500 text-[11px] font-bold px-3 py-1.5 rounded-md shadow-sm">
+                    <span className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/90 backdrop-blur-sm text-pink-500 text-[8px] sm:text-[11px] font-bold px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-md shadow-sm">
                       {card.icon || "THEME"}
                     </span>
                   </div>
-                  <div className="px-2 pb-2 flex-grow flex flex-col">
-                    <h3 className="font-serif font-bold text-brand-navy text-[24px] mb-2 leading-tight">{card.title}</h3>
-                    <p className="text-[14px] text-gray-500 mb-6 leading-relaxed flex-grow">{card.description}</p>
-                    <button className="text-pink-500 font-semibold text-[14px] flex items-center gap-2 group-hover:text-pink-600 transition-colors mt-auto">
-                      View Theme Details <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+
+                  {/* Text Content - Tightly packed for small screens */}
+                  <div className="px-1 sm:px-2 pb-1 sm:pb-2 flex-grow flex flex-col">
+                    <h3 className="font-serif font-bold text-brand-navy text-[14px] sm:text-[24px] mb-1 sm:mb-2 leading-tight line-clamp-1 sm:line-clamp-none">
+                      {card.title}
+                    </h3>
+                    
+                    <p className="text-[10px] sm:text-[14px] text-gray-500 mb-3 sm:mb-6 leading-relaxed flex-grow line-clamp-3 sm:line-clamp-none">
+                      {card.description}
+                    </p>
+                    
+                    <button className="text-pink-500 font-semibold text-[10px] sm:text-[14px] flex items-center gap-1 sm:gap-2 group-hover:text-pink-600 transition-colors mt-auto w-fit">
+                      <span className="hidden sm:inline">View Theme Details</span>
+                      <span className="sm:hidden">View Details</span> 
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                      </svg>
                     </button>
                   </div>
+                  
                 </motion.div>
               );
             })}

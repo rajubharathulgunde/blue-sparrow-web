@@ -1,8 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../../../shared/components/Navbar';
 import Footer from '../../../shared/components/Footer';
+import BrandLogo from '../../../shared/components/BrandLogo';
 import { supabase } from '../../../lib/supabase';
 // import FaqBrochureSection from '../../Home/components/FaqBrochureSection';
 
@@ -94,7 +95,7 @@ const CssCoach = ({ color, roofColor }) => (
 );
 
 const FullCssTrain = () => (
-  <div className="flex flex-row items-end scale-75 md:scale-100 origin-bottom-left">
+  <div className="flex flex-row items-end scale-[0.5] sm:scale-75 md:scale-100 origin-bottom-left">
     <CssTrainEngine />
     <CssCoach color="bg-purple-500" roofColor="bg-yellow-400" />
     <CssCoach color="bg-green-400" roofColor="bg-pink-500" />
@@ -115,7 +116,7 @@ const InteractiveRocket = () => {
   };
 
   return (
-    <div onClick={handleLaunch} className="fixed bottom-12 right-6 md:right-12 z-[60] flex flex-col items-center group cursor-pointer">
+    <div onClick={handleLaunch} className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 md:bottom-12 md:right-12 z-[60] flex flex-col items-center group cursor-pointer scale-75 sm:scale-90 md:scale-100 origin-bottom-right">
       
       <motion.div 
         animate={isLaunching ? { y: -1000, scale: 1.1 } : { y: [-8, 8, -8] }} 
@@ -157,7 +158,7 @@ const InteractiveRocket = () => {
         </div>
       </motion.div>
 
-      <div className="mt-14 text-white md:text-brand-navy font-bold text-sm tracking-wide bg-brand-navy/60 md:bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-lg opacity-90 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-300 pointer-events-none border border-white/20">
+      <div className="mt-8 md:mt-14 text-white md:text-brand-navy font-bold text-xs md:text-sm tracking-wide bg-brand-navy/60 md:bg-white/80 backdrop-blur-sm px-3 md:px-4 py-1 md:py-1.5 rounded-full shadow-lg opacity-90 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-300 pointer-events-none border border-white/20">
         Plan an Event <span className="text-yellow-400">🚀</span>
       </div>
     </div>
@@ -206,7 +207,7 @@ const CarnivalsView = () => {
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 450; 
+      const scrollAmount = window.innerWidth < 640 ? 250 : 450; 
       scrollContainerRef.current.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
     }
   };
@@ -215,10 +216,12 @@ const CarnivalsView = () => {
     const interval = setInterval(() => {
       if (scrollContainerRef.current) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+        const scrollAmount = window.innerWidth < 640 ? 250 : 450;
+        
         if (scrollLeft + clientWidth >= scrollWidth - 10) {
           scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
-          scrollContainerRef.current.scrollBy({ left: 450, behavior: 'smooth' });
+          scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
       }
     }, 3500); 
@@ -268,6 +271,7 @@ const CarnivalsView = () => {
 
   return (
     <div className="font-sans text-gray-600 bg-white min-h-screen flex flex-col selection:bg-purple-200 selection:text-brand-navy overflow-hidden relative">
+      <BrandLogo />
       <Navbar />
       
       {/* The Animated Launching Rocket */}
@@ -288,7 +292,7 @@ const CarnivalsView = () => {
             }} 
           />
           {/* Subtle dark gradient strictly on the left to ensure neon text pops while keeping image clear */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/60 to-transparent w-full md:w-[60%] lg:w-[55%]"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/60 to-transparent w-full md:w-[70%] lg:w-[55%]"></div>
         </div>
 
         {/* Animated Fireworks */}
@@ -309,65 +313,64 @@ const CarnivalsView = () => {
         </motion.div>
 
         {/* Foreground Content - Left Aligned to edge */}
-        <div className="w-full px-6 lg:pl-12 xl:pl-20 relative z-30 flex flex-col justify-center">
+        <div className="w-full px-5 sm:px-6 lg:pl-12 xl:pl-20 relative z-30 flex flex-col justify-center">
           <motion.div 
             initial={{ opacity: 0, x: -50 }} 
             animate={{ opacity: 1, x: 0 }} 
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} 
-            className="w-full lg:w-[60%] xl:w-[50%] flex flex-col items-start text-left pt-20"
+            className="w-full lg:w-[60%] xl:w-[50%] flex flex-col items-start text-left pt-24 sm:pt-20 mt-4 sm:mt-0"
           >
-            <span className="bg-white/10 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 text-yellow-300 font-bold tracking-widest uppercase text-sm mb-6 inline-block shadow-lg">
+            <span className="bg-white/10 backdrop-blur-md px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/20 text-yellow-300 font-bold tracking-widest uppercase text-[10px] sm:text-sm mb-4 sm:mb-6 inline-block shadow-lg">
               Step Right Up
             </span>
             
             {/* Glowing Neon Heading */}
-            <h1 className="text-[52px] sm:text-[64px] md:text-[80px] lg:text-[84px] font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 leading-[1.05] tracking-tight mb-6 drop-shadow-[0_0_20px_rgba(236,72,153,0.6)]">
+            <h1 className="text-[40px] sm:text-[52px] md:text-[80px] lg:text-[84px] font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 leading-[1.05] tracking-tight mb-4 sm:mb-6 drop-shadow-[0_0_20px_rgba(236,72,153,0.6)]">
               Immersive Carnivals, <br className="hidden md:block" /> Spectacular Fun.
             </h1>
             
-            <p className="text-[15px] md:text-[17px] text-gray-100 max-w-xl font-medium leading-relaxed drop-shadow-md bg-black/40 p-5 rounded-2xl backdrop-blur-sm border border-white/10 mb-8">
+            <p className="text-[14px] sm:text-[15px] md:text-[17px] text-gray-100 max-w-xl font-medium leading-relaxed drop-shadow-md bg-black/50 md:bg-black/40 p-4 sm:p-5 rounded-[16px] sm:rounded-2xl backdrop-blur-sm border border-white/10 mb-6 sm:mb-8">
               Transform any space into a magical wonderland. From alien invasions to massive candy factories, we build grand-scale carnivals that leave families spellbound.
             </p>
 
-            <button onClick={() => window.scrollTo({ top: 850, behavior: 'smooth' })} className="mt-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-bold py-4 px-10 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transform hover:-translate-y-1 transition-all duration-300 text-[15px] tracking-wide border border-purple-300/50 flex items-center gap-3">
-              Explore Carnivals <span className="text-lg">🎪</span>
+            <button onClick={() => window.scrollTo({ top: 850, behavior: 'smooth' })} className="mt-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-bold py-3.5 sm:py-4 px-8 sm:px-10 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transform hover:-translate-y-1 transition-all duration-300 text-[14px] sm:text-[15px] tracking-wide border border-purple-300/50 flex items-center gap-2 sm:gap-3">
+              Explore Carnivals <span className="text-[16px] sm:text-lg">🎪</span>
             </button>
           </motion.div>
         </div>
 
         {/* Original Bottom Curve Detail */}
         <div className="absolute -bottom-1 left-0 w-full text-[#f8fafc] z-30 pointer-events-none">
-          <svg viewBox="0 0 1440 100" fill="currentColor" preserveAspectRatio="none" className="w-full h-12 md:h-24"><path d="M0,50 C150,100 250,0 400,50 C550,100 650,20 800,50 C950,80 1100,10 1200,50 L1440,30 L1440,100 L0,100 Z"></path></svg>
+          <svg viewBox="0 0 1440 100" fill="currentColor" preserveAspectRatio="none" className="w-full h-8 sm:h-12 md:h-24"><path d="M0,50 C150,100 250,0 400,50 C550,100 650,20 800,50 C950,80 1100,10 1200,50 L1440,30 L1440,100 L0,100 Z"></path></svg>
         </div>
       </section>
       
       {/* ================= AUTO IMAGE SLIDER ================= */}
-      <section className="pt-16 pb-12 bg-[#f8fafc] relative z-20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-end mb-10">
+      <section className="pt-10 sm:pt-16 pb-10 sm:pb-12 bg-[#f8fafc] relative z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 sm:mb-10 gap-4">
            <div>
-             <h2 className="text-[32px] font-serif font-bold text-brand-navy mb-2">Carnival Highlights</h2>
-             <p className="text-gray-500 text-[16px] font-light">Glimpses of our grand-scale immersive worlds.</p>
+             <h2 className="text-[26px] sm:text-[32px] font-serif font-bold text-brand-navy mb-1 sm:mb-2 leading-tight">Carnival Highlights</h2>
+             <p className="text-gray-500 text-[14px] sm:text-[16px] font-light">Glimpses of our grand-scale immersive worlds.</p>
            </div>
-           <div className="flex gap-3 hidden md:flex">
-             <button onClick={() => scroll(-1)} className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all shadow-sm">
-               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+           <div className="hidden md:flex gap-3">
+             <button onClick={() => scroll(-1)} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all shadow-sm">
+               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
              </button>
-             <button onClick={() => scroll(1)} className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all shadow-sm">
-               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+             <button onClick={() => scroll(1)} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-all shadow-sm">
+               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
              </button>
            </div>
         </div>
 
         <div 
           ref={scrollContainerRef} 
-          className="max-w-7xl mx-auto px-6 lg:px-12 flex overflow-x-auto gap-8 pb-10 hide-scrollbar snap-x snap-mandatory scroll-smooth"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex overflow-x-auto gap-4 sm:gap-8 pb-8 sm:pb-10 hide-scrollbar snap-x snap-mandatory scroll-smooth"
         >
           {displaySlider.map((img, i) => {
-            // Check against hidden cards if CMS images are passed
             if (hiddenCards.has(img.id)) return null;
 
             return (
-              <div key={img.id || i} className="min-w-[320px] md:min-w-[480px] h-[300px] md:h-[380px] snap-center group relative rounded-[32px] overflow-hidden shadow-md bg-gray-100">
+              <div key={img.id || i} className="min-w-[240px] sm:min-w-[320px] md:min-w-[480px] h-[200px] sm:h-[300px] md:h-[380px] snap-center group relative rounded-[20px] sm:rounded-[32px] overflow-hidden shadow-md bg-gray-100">
                 <img 
                   src={img.image_url || img.src} 
                   alt={img.title} 
@@ -376,11 +379,11 @@ const CarnivalsView = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/80 via-transparent to-transparent opacity-90"></div>
                 
-                <div className="absolute bottom-6 left-6 right-6">
-                  <span className="bg-white/20 backdrop-blur-md text-white border border-white/30 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm tracking-wider uppercase inline-block mb-3">
+                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6">
+                  <span className="bg-white/20 backdrop-blur-md text-white border border-white/30 text-[9px] sm:text-[11px] font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-sm tracking-wider uppercase inline-block mb-2 sm:mb-3">
                     {img.tag || img.category || "Highlight"}
                   </span>
-                  <h3 className="text-white text-2xl font-serif font-bold drop-shadow-md">{img.title}</h3>
+                  <h3 className="text-white text-[18px] sm:text-2xl font-serif font-bold drop-shadow-md">{img.title}</h3>
                 </div>
               </div>
             );
@@ -388,9 +391,11 @@ const CarnivalsView = () => {
         </div>
       </section>
 
-      {/* ================= DYNAMIC THEME CARDS GRID ================= */}
-      <section className="pt-10 pb-32 px-6 lg:px-12 bg-[#f8fafc] relative z-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+      {/* ================= DYNAMIC THEME CARDS GRID (RESPONSIVE 2-GRID MOBILE) ================= */}
+      <section className="pt-6 sm:pt-10 pb-20 sm:pb-32 px-3 sm:px-6 lg:px-12 bg-[#f8fafc] relative z-20">
+        
+        {/* Forces 2 columns on mobile, expands to 3 on large screens */}
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-10">
           <AnimatePresence>
             {displayCards.map((card, i) => {
               if (hiddenCards.has(card.id)) return null;
@@ -399,9 +404,10 @@ const CarnivalsView = () => {
                 <motion.div 
                   layout key={card.id || i}
                   initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: (i % 6) * 0.1, ease: "easeOut" }}
-                  className="bg-white rounded-[40px] p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-500 group flex flex-col"
+                  className="bg-white rounded-[16px] sm:rounded-[40px] p-2 sm:p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 sm:hover:-translate-y-2 transition-all duration-500 group flex flex-col"
                 >
-                   <div className="w-full aspect-[3/4] md:aspect-[9/16] max-h-[450px] rounded-[32px] overflow-hidden relative mb-6 bg-purple-50">
+                   {/* Image Aspect Box - Scaled for 2-column mobile */}
+                   <div className="w-full aspect-[4/5] sm:aspect-[3/4] md:aspect-[9/16] max-h-[220px] sm:max-h-[450px] rounded-[10px] sm:rounded-[32px] overflow-hidden relative mb-2 sm:mb-6 bg-purple-50">
                      <img 
                        src={card.image_url} 
                        onError={() => handleImageError(card.id)}
@@ -409,11 +415,19 @@ const CarnivalsView = () => {
                        className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-1000 ease-out" 
                      />
                    </div>
-                   <div className="px-2 pb-2 flex-grow flex flex-col">
-                     <h3 className="font-serif font-bold text-brand-navy text-[26px] mb-3 leading-tight group-hover:text-purple-600 transition-colors">{card.title}</h3>
-                     <p className="text-[15px] text-gray-500 mb-6 leading-relaxed flex-grow font-light">{card.description}</p>
-                     <button className="text-purple-500 font-semibold text-[15px] flex items-center gap-2 group-hover:text-purple-700 transition-colors mt-auto">
-                       Explore Carnival <svg className="w-4 h-4 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                   
+                   <div className="px-1 sm:px-2 pb-1 sm:pb-2 flex-grow flex flex-col">
+                     <h3 className="font-serif font-bold text-brand-navy text-[13px] sm:text-[26px] mb-1 sm:mb-3 leading-tight group-hover:text-purple-600 transition-colors line-clamp-2 sm:line-clamp-none">
+                       {card.title}
+                     </h3>
+                     <p className="text-[10px] sm:text-[15px] text-gray-500 mb-2 sm:mb-6 leading-relaxed flex-grow font-light line-clamp-2 sm:line-clamp-none">
+                       {card.description}
+                     </p>
+                     
+                     <button className="text-purple-500 font-semibold text-[9px] sm:text-[15px] flex items-center gap-1 sm:gap-2 group-hover:text-purple-700 transition-colors mt-auto w-fit">
+                       <span className="hidden sm:inline">Explore Carnival</span>
+                       <span className="sm:hidden">Explore</span>
+                       <svg className="w-3 h-3 sm:w-4 sm:h-4 transform group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                      </button>
                    </div>
                 </motion.div>
