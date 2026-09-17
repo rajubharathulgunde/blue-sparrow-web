@@ -2,9 +2,9 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../../shared/components/Navbar';
 import Footer from '../../../shared/components/Footer';
-import BrandLogo from '../../../shared/components/BrandLogo'; // Ensure correct path for your project
+import BrandLogo from '../../../shared/components/BrandLogo'; 
 import { supabase } from '../../../lib/supabase';
-// import FaqBrochureSection from '../../Home/components/FaqBrochureSection'; // Commented out for now
+// import FaqBrochureSection from '../../Home/components/FaqBrochureSection'; 
 
 const KidsPartyView = () => {
   const scrollContainerRef = useRef(null);
@@ -15,25 +15,20 @@ const KidsPartyView = () => {
   // === CMS & CARD STATES ===
   const [dbGallery, setDbGallery] = useState([]);
   const [dbCards, setDbCards] = useState([]);
-  const [hiddenCards, setHiddenCards] = useState(new Set()); // Tracks images that fail to load
+  const [hiddenCards, setHiddenCards] = useState(new Set()); 
   
-  // === HERO SLIDESHOW STATE ===
+  // === DYNAMIC HERO SLIDESHOW STATE ===
   const [heroIndex, setHeroIndex] = useState(0);
-  const heroImages = [
+  const [heroImages, setHeroImages] = useState([
     "/assets/Birthday Section.png",
     "/assets/Birthday.png"
-  ];
+  ]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     
     // Hide rainbow intro after 3.5 seconds
     const introTimer = setTimeout(() => setShowIntro(false), 3500);
-
-    // Hero Background Slideshow interval
-    const heroTimer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
 
     // === FETCH CMS DATA ===
     const fetchData = async () => {
@@ -42,7 +37,16 @@ const KidsPartyView = () => {
         .select('*')
         .eq('theme_id', 'birthday')
         .order('created_at', { ascending: false });
-      if (gallery) setDbGallery(gallery);
+        
+      if (gallery) {
+        setDbGallery(gallery);
+        
+        // Dynamically pull Hero images from CMS
+        const heroes = gallery.filter(g => g.category === 'hero').map(g => g.image_url);
+        if (heroes.length > 0) {
+          setHeroImages(heroes);
+        }
+      }
 
       const { data: cards } = await supabase
         .from('theme_cards')
@@ -65,15 +69,22 @@ const KidsPartyView = () => {
 
     return () => {
       clearTimeout(introTimer);
-      clearInterval(heroTimer);
       supabase.removeChannel(channel1);
       supabase.removeChannel(channel2);
     };
   }, []);
 
+  // Update Hero interval dynamically if heroImages changes
+  useEffect(() => {
+    const heroTimer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(heroTimer);
+  }, [heroImages.length]);
+
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 350;
+      const scrollAmount = window.innerWidth < 640 ? 250 : 350;
       scrollContainerRef.current.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
     }
   };
@@ -82,17 +93,18 @@ const KidsPartyView = () => {
     const interval = setInterval(() => {
       if (scrollContainerRef.current) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+        const scrollAmount = window.innerWidth < 640 ? 250 : 350;
+        
         if (scrollLeft + clientWidth >= scrollWidth - 10) {
           scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
-          scrollContainerRef.current.scrollBy({ left: 350, behavior: 'smooth' });
+          scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
       }
     }, 3000);
     return () => clearInterval(interval);
   }, []);
 
-  // Handler to hide cards if their image doesn't exist
   const handleImageError = (cardId) => {
     setHiddenCards(prev => new Set(prev).add(cardId));
   };
@@ -106,20 +118,16 @@ const KidsPartyView = () => {
     { id: 5, image_url: "/assets/carnivals 2026.pdf/11.jpg", title: "Sci-Fi Fun" },
   ];
 
-  // Specific custom text for known cards in the brochure
   const specificCards = [
     { id: 3, title: "Frozen Princess Party", description: "A magical celebration filled with wonder, creativity, and icy fun! Includes Snow Volcanoes, Wand Making, and Princess Training.", image_url: "/assets/Bluesparrow_Party_Themes_Catalogue.pdf/3.jpg", icon: "MOST POPULAR" },
     { id: 4, title: "Peppa's Muddy Puddles", description: "Oink oink! Jump into muddy puddles with Peppa Pig themed sensory bins, craft stations, and a vibrant picnic setup.", image_url: "/assets/Bluesparrow_Party_Themes_Catalogue.pdf/4.jpg", icon: "TODDLERS" },
     { id: 5, title: "Superhero Academy", description: "Calling all heroes! Features an obstacle course, cape designing, and a special graduation ceremony to get their hero licenses.", image_url: "/assets/Bluesparrow_Party_Themes_Catalogue.pdf/5.jpg", icon: "ACTION PACKED" }
   ];
 
-  // Set this to the number of images you currently have in your folder to prevent over-generating fallbacks
   const TOTAL_LOCAL_IMAGES = 18; 
-
   const fallbackCards = Array.from({ length: TOTAL_LOCAL_IMAGES }, (_, i) => {
     const cardNum = i + 1;
     const specificMatch = specificCards.find(c => c.id === cardNum);
-    
     if (specificMatch) return specificMatch;
     
     return {
@@ -131,11 +139,13 @@ const KidsPartyView = () => {
     };
   });
 
-  const displaySlider = dbGallery.length > 0 ? dbGallery : fallbackImages;
+  // Pull only "glimpse" category items for the slider
+  const glimpseImages = dbGallery.filter(g => g.category === 'glimpse' || !g.category);
+  const displaySlider = glimpseImages.length > 0 ? glimpseImages : fallbackImages;
   const displayCards = dbCards.length > 0 ? dbCards : fallbackCards;
 
   return (
-    <div className="font-sans text-gray-600 bg-white min-h-screen flex flex-col selection:bg-brand-pink selection:text-brand-navy overflow-hidden">
+    <div className="font-sans text-gray-600 bg-white min-h-screen flex flex-col selection:bg-brand-pink selection:text-brand-navy overflow-hidden relative">
       
       {/* ================= WELCOME RAINBOW ANIMATION ================= */}
       <AnimatePresence>
@@ -178,7 +188,7 @@ const KidsPartyView = () => {
       {/* ================= FULL SCREEN NEON HERO SECTION ================= */}
       <section className="relative w-full min-h-[95vh] flex items-center bg-[#0f172a] flex-grow overflow-hidden">
         
-        {/* Full Screen Background Slideshow (NO white blur) */}
+        {/* Full Screen Background Slideshow */}
         <div className="absolute inset-0 z-0">
           <AnimatePresence>
             <motion.div
@@ -201,7 +211,7 @@ const KidsPartyView = () => {
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent z-10"></div>
         </div>
 
-        {/* Foreground Content - Shifted completely to the left edge */}
+        {/* Foreground Content */}
         <div className="w-full px-5 sm:px-6 lg:pl-12 xl:pl-20 relative z-20 pt-28 sm:pt-28 pb-16 flex flex-col justify-center min-h-[95vh]">
           
           <motion.div 
@@ -261,7 +271,7 @@ const KidsPartyView = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <span className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white/90 backdrop-blur-sm text-pink-500 text-[9px] sm:text-[10px] font-bold px-2 sm:px-3 py-1 rounded-full shadow-sm tracking-wider uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
-                    {img.title || img.tag}
+                    {img.title || img.tag || 'Magic'}
                   </span>
                 </motion.div>
               );
@@ -272,7 +282,6 @@ const KidsPartyView = () => {
 
       {/* ================= DYNAMIC THEME CARDS GRID (RESPONSIVE MULTI-GRID) ================= */}
       <section className="pt-10 sm:pt-16 pb-20 sm:pb-24 px-4 sm:px-6 lg:px-12 bg-white relative z-20">
-        {/* Forces 2 columns on mobile, expands to 3 on large screens */}
         <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-10">
           <AnimatePresence>
             {displayCards.map((card, i) => {
@@ -281,7 +290,7 @@ const KidsPartyView = () => {
               return (
                 <motion.div layout key={card.id || i} className="bg-white rounded-[16px] sm:rounded-[32px] p-2.5 sm:p-5 shadow-soft border border-gray-50 hover:shadow-soft-hover transition-all duration-500 group flex flex-col">
                   
-                  {/* Image Aspect Box - Scaled for 2-column mobile */}
+                  {/* Image Aspect Box */}
                   <div className="w-full aspect-[4/5] sm:aspect-[3/4] md:aspect-[9/16] max-h-[250px] sm:max-h-[500px] rounded-[12px] sm:rounded-[24px] overflow-hidden relative mb-3 sm:mb-6 bg-gray-100">
                     <img 
                       src={card.image_url} 
@@ -294,7 +303,6 @@ const KidsPartyView = () => {
                     </span>
                   </div>
 
-                  {/* Text Content - Tightly packed for small screens */}
                   <div className="px-1 sm:px-2 pb-1 sm:pb-2 flex-grow flex flex-col">
                     <h3 className="font-serif font-bold text-brand-navy text-[14px] sm:text-[24px] mb-1 sm:mb-2 leading-tight line-clamp-1 sm:line-clamp-none">
                       {card.title}
@@ -319,8 +327,6 @@ const KidsPartyView = () => {
           </AnimatePresence>
         </div>
       </section>
-      
-      {/* <FaqBrochureSection pageTheme="birthday" /> */}
 
       <Footer />
     </div>
