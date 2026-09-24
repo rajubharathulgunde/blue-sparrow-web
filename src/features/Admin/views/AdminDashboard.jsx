@@ -11,7 +11,7 @@ const PAGE_TABS = [
   { id: 'corporate', label: '💼 Corporate' },
   { id: 'carnival', label: '🎪 Carnivals' },
   { id: 'discovery', label: '🧭 Discovery' },
-  { id: 'malls', label: '🛍️ Malls' },
+  { id: 'malls', label: '🛍️ Schools & Malls' }, // Renamed from Malls
   { id: 'science', label: '🧪 Science' },
   { id: 'superhero', label: '🦸‍♂️ Superhero' },
   { id: 'wizarding', label: '🧙‍♂️ Wizarding' },
@@ -64,9 +64,8 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
   const fileInputRef = useRef(null);
-  const tabsScrollRef = useRef(null); // Ref for horizontal navbar scrolling
+  const tabsScrollRef = useRef(null); 
 
-  // Bulletproof state initializations (fallback to [])
   const [leads, setLeads] = useState([]);
   const [cards, setCards] = useState([]);
   const [gallery, setGallery] = useState([]);
@@ -123,14 +122,13 @@ const AdminDashboard = () => {
     if(fileInputRef.current) fileInputRef.current.value = "";
   }, [activePage]);
 
-  // Horizontal Scroll Handler for Page Tabs
   const scrollTabs = (direction) => {
     if (tabsScrollRef.current) {
       tabsScrollRef.current.scrollBy({ left: direction * 250, behavior: 'smooth' });
     }
   };
 
-  // === CRM LOGIC & MODERN ANALYTICS ===
+  // === CRM LOGIC ===
   const filterByTime = (dataArray) => {
     if (!Array.isArray(dataArray)) return [];
     const now = new Date();
@@ -186,7 +184,6 @@ const AdminDashboard = () => {
     fetchData();
   };
 
-  // === HERO & FAQ CONFIG LOGIC ===
   const currentModeCard = (cards || []).find(c => c.title === 'hero_display_mode');
   const currentHeroMode = currentModeCard ? currentModeCard.description : 'all';
 
@@ -553,7 +550,22 @@ const AdminDashboard = () => {
                         <div className="space-y-4 pt-2 border-t border-gray-100">
                           <input type="text" placeholder={selectedSection.type === 'card' ? "Header / Title *" : "Media Title (Optional)"} required={selectedSection.type === 'card'} value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-800 outline-none focus:border-[#4f46e5] focus:bg-white transition-colors text-sm sm:text-base" />
                           {selectedSection.type === 'card' && <textarea placeholder="Description Text *" required value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-800 h-28 outline-none focus:border-[#4f46e5] focus:bg-white transition-colors resize-none text-sm sm:text-base" />}
-                          <input type="text" placeholder={selectedSection.type === 'card' ? "Badge Text (e.g. WORKSHOP)" : "Category Tag (e.g. Adventure)"} value={formData.badge} onChange={e => setFormData({...formData, badge: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-800 outline-none focus:border-[#4f46e5] focus:bg-white transition-colors text-sm sm:text-base" />
+
+                          {/* PORTFOLIO SPECIFIC CATEGORY SELECTOR */}
+                          {selectedSection.id === 'portfolio_images' ? (
+                            <div>
+                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">Select Event Type (Category)</label>
+                              <select value={formData.badge} onChange={e => setFormData({...formData, badge: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-800 outline-none focus:border-[#4f46e5] text-sm sm:text-base cursor-pointer">
+                                <option value="">Select Category...</option>
+                                <option value="Birthdays">Birthdays</option>
+                                <option value="Corporate">Corporate</option>
+                                <option value="Schools & Malls">Schools & Malls</option>
+                                <option value="Carnivals">Carnivals</option>
+                              </select>
+                            </div>
+                          ) : (
+                            <input type="text" placeholder={selectedSection.type === 'card' ? "Badge Text (e.g. WORKSHOP)" : "Category Tag (e.g. Adventure)"} value={formData.badge} onChange={e => setFormData({...formData, badge: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-800 outline-none focus:border-[#4f46e5] focus:bg-white transition-colors text-sm sm:text-base" />
+                          )}
 
                           {selectedSection.id === 'featured_events' && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-indigo-50 p-4 rounded-xl border border-indigo-100">
@@ -602,7 +614,7 @@ const AdminDashboard = () => {
                                 <div className="w-full h-32 sm:h-36 bg-gray-200 rounded-[16px] overflow-hidden relative shrink-0">
                                   {isVideo ? <video src={item.image_url} className="w-full h-full object-cover" muted loop autoPlay playsInline /> : <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />}
                                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                                    <button onClick={() => handleDelete(section.table, item.id)} className="bg-red-500 text-white text-xs font-bold py-2 px-6 rounded-full hover:bg-red-600 shadow-lg transform hover:scale-105 transition-all">Delete Item</button>
+                                    <button onClick={() => handleDelete(section.table, item.id)} className="bg-red-500 text-white text-xs font-bold py-2 px-6 rounded-full hover:bg-red-600 shadow-lg transform hover:scale-105 transition-all">Delete</button>
                                   </div>
                                 </div>
                                 <div className="p-3 flex flex-col flex-grow">
