@@ -204,11 +204,11 @@ const MallsView = () => {
         
         {/* CSS abstract neon curved doodles */}
         <div className="absolute top-10 right-0 w-[40vw] h-[40vw] sm:w-[20vw] sm:h-[20vw] border-[3px] border-dashed border-indigo-200 rounded-full opacity-40 z-0 pointer-events-none drop-shadow-[0_0_15px_rgba(99,102,241,0.3)]"></div>
-
+{/*
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-white p-6 sm:p-10 rounded-[24px] sm:rounded-[40px] border border-indigo-50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_rgba(99,102,241,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center group">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-2xl sm:text-3xl mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(99,102,241,0.2)]">🔄</div>
-            <h3 className="text-lg sm:text-xl font-serif font-bold text-[#1e293b] mb-2 sm:mb-3 group-hover:text-indigo-600 transition-colors">Queue Management</h3>
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-2xl sm:text-3xl mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(99,102,241,0.2)]"></div>
+            <h3 className="text-lg sm:text-xl font-serif font-bold text-[#1e293b] mb-2 sm:mb-3 group-hover:text-indigo-600 transition-colors">Brand Activations</h3>
             <p className="text-gray-500 text-[13px] sm:text-[15px] font-light leading-relaxed">Fast-turnaround activities designed to keep lines moving while delivering high-value engagement, preventing atrium bottlenecks.</p>
           </motion.div>
           
@@ -224,6 +224,7 @@ const MallsView = () => {
             <p className="text-gray-500 text-[13px] sm:text-[15px] font-light leading-relaxed">Robust operational structures that allow activities to run consistently across weekends or entire month-long festive seasons.</p>
           </motion.div>
         </div>
+        */}
       </section>
 
       {/* ================= DYNAMIC AUTO IMAGE SLIDER ================= */}

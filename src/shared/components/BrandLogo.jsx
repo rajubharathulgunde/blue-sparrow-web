@@ -1,31 +1,17 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const BrandLogo = () => {
   return (
-    <div
-      className="
-        absolute
-        top-[5px] sm:top-[10px]
-        left-[50px] sm:left-[80px] md:left-[100px]
-        -translate-x-1/2
-        z-[70]
-        w-[90px] sm:w-[120px] md:w-[150px]
-        h-[90px] sm:h-[120px] md:h-[150px]
-        flex
-        items-center
-        justify-center
-        pointer-events-none
-      "
-    >
-      <img
-        src="/assets/BS-Word-Logo-Light-BG.png"
-        alt="Blue Sparrow Events"
-        className="
-          w-full
-          h-full
-          object-contain
-        "
-      />
+    // Pinned purely to the exact top-left corner, scaling down for mobile.
+    <div className="absolute top-4 sm:top-6 left-4 sm:left-6 md:left-8 z-[70] pointer-events-auto">
+      <Link to="/" className="flex items-center justify-start w-[80px] sm:w-[100px] md:w-[120px]">
+        <img
+          src="/assets/BS-Word-Logo-Light-BG.png"
+          alt="Blue Sparrow Events"
+          className="w-full h-auto object-contain transform origin-left"
+        />
+      </Link>
     </div>
   );
 };
