@@ -68,7 +68,7 @@ const HeroSection = () => {
 
       if (data && data.length > 0) {
         setMediaFilter(data[0].description);
-        setCurrentIndex(0); // Reset index on change
+        setCurrentIndex(0); 
       }
     };
 
@@ -110,11 +110,11 @@ const HeroSection = () => {
   const fallbackSliderImages = [
     "/assets/ig videos/Alien Invasion experience zone built and executed by Bluesparrow parties for Hamleys WonderlandL.mp4",
     "/assets/Carnival 1.png",
-    "/assets/ig videos/Another STEM Fair at Abbott in the books 🚀Last week was one of those days where everything just.mp4",
+    "/assets/ig videos/Another STEM Fair at Abbott in the books Last week was one of those days where everything just.mp4",
     "/assets/Birthday Section.png",
-    "/assets/ig videos/Gratitude in every shade of blue! 🎉 Thank you Megha kulchandani,for curating an inventors lab.mp4",
+    "/assets/ig videos/Gratitude in every shade of blue!  Thank you Megha kulchandani,for curating an inventors lab.mp4",
     "/assets/ig videos/If your child would love to hitchhike to the space, why not bring the galaxy to them!At our Sp.mp4",
-    "/assets/ig videos/We turned hamleysplay into a world of fun! 🎉 Our in-store activation made kids and families smi.mp4"
+    "/assets/ig videos/We turned hamleysplay into a world of fun!  Our in-store activation made kids and families smi.mp4"
   ];
 
   const rawSliderData =
@@ -166,17 +166,10 @@ const HeroSection = () => {
           className="w-full lg:w-[45%] xl:w-[42%] flex flex-col items-start text-left z-20"
         >
 
-          {/* LABEL */}
-          <div className="relative mb-5 sm:mb-6">
-            <PremiumStar
-              color="cyan"
-              className="absolute -left-4 sm:-left-6 -top-3 sm:-top-4 w-4 h-4 sm:w-5 sm:h-5 animate-pulse opacity-80"
-            />
-
-            <span className="text-cyan-600 font-bold text-[9px] sm:text-[11px] md:text-[13px] tracking-[0.2em] sm:tracking-[0.25em] uppercase bg-cyan-50 border border-cyan-100 px-3 sm:px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">
-              Events That Inspire
-            </span>
-          </div>
+         {/* LABEL */}
+         
+          
+          
 
           {/* MAIN HEADING */}
           <h1 className="text-[38px] leading-[1.04] sm:text-[48px] sm:leading-[1.02] md:text-[60px] lg:text-[72px] xl:text-[84px] font-sans font-extrabold text-[#0f172a] tracking-tight mb-5 sm:mb-6 relative">

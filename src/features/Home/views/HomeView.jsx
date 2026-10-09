@@ -33,7 +33,7 @@ const HomeView = () => {
       <BrandsSection />
       <FeaturedEventsSection />
       <FaqBrochureSection />
-      <CtaSection />
+      {/*<CtaSection />*/}
       
       
       <Footer />

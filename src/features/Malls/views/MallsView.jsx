@@ -3,11 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Navbar from '../../../shared/components/Navbar';
 import Footer from '../../../shared/components/Footer';
-import BrandLogo from '../../../shared/components/BrandLogo'; // Imported Brand Logo
+import BrandLogo from '../../../shared/components/BrandLogo';
 import { supabase } from '../../../lib/supabase';
-// import FaqBrochureSection from '../../Home/components/FaqBrochureSection';
 
-// Reusable Glowing Neon Star doodle
 const NeonStar = ({ className, color = "indigo" }) => {
   const gradients = {
     indigo: { stop1: "#818cf8", stop2: "#c084fc" },
@@ -23,10 +21,7 @@ const NeonStar = ({ className, color = "indigo" }) => {
         </linearGradient>
         <filter id={`glow-${color}`}>
           <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>
       <path d="M12 1L13.8 8.5L21 10L13.8 11.5L12 19L10.2 11.5L3 10L10.2 8.5L12 1Z" fill={`url(#star-${color})`} filter={`url(#glow-${color})`} />
@@ -37,37 +32,47 @@ const NeonStar = ({ className, color = "indigo" }) => {
 const MallsView = () => {
   const scrollContainerRef = useRef(null);
 
-  // === CMS STATES ===
   const [dbGallery, setDbGallery] = useState([]);
-  const [dbCards, setDbCards] = useState([]);
+  const [dbCaseStudies, setDbCaseStudies] = useState([]);
+  const [dbBlogs, setDbBlogs] = useState([]);
+  const [dbTexts, setDbTexts] = useState({});
+  const [hiddenCards, setHiddenCards] = useState(new Set()); 
 
   useEffect(() => {
     window.scrollTo(0, 0);
 
     const fetchData = async () => {
-      const { data: gallery } = await supabase
-        .from('gallery_images')
-        .select('*')
-        .eq('theme_id', 'malls')
-        .order('created_at', { ascending: false });
+      // Fetch Gallery
+      const { data: gallery } = await supabase.from('gallery_images').select('*').eq('theme_id', 'malls').order('created_at', { ascending: false });
       if (gallery) setDbGallery(gallery);
 
-      const { data: cards } = await supabase
-        .from('theme_cards')
-        .select('*')
-        .eq('theme_id', 'malls')
-        .order('created_at', { ascending: true });
-      if (cards) setDbCards(cards);
+      // Fetch Case Studies
+      const { data: caseStudies } = await supabase.from('case_studies').select('*').eq('theme_id', 'malls').order('created_at', { ascending: false });
+      if (caseStudies) setDbCaseStudies(caseStudies);
+
+      // Fetch Blogs
+      const { data: blogs } = await supabase.from('blogs').select('*').eq('theme_id', 'malls').order('created_at', { ascending: false });
+      if (blogs) setDbBlogs(blogs);
+
+      // Fetch Custom Texts
+      const { data: texts } = await supabase.from('website_text').select('*').eq('page_id', 'malls');
+      if (texts) {
+        const textMap = texts.reduce((acc, curr) => ({ ...acc, [curr.text_key]: curr.content }), {});
+        setDbTexts(textMap);
+      }
     };
 
     fetchData();
 
-    const channel1 = supabase.channel('live-malls-gallery').on('postgres_changes', { event: '*', schema: 'public', table: 'gallery_images' }, fetchData).subscribe();
-    const channel2 = supabase.channel('live-malls-cards').on('postgres_changes', { event: '*', schema: 'public', table: 'theme_cards' }, fetchData).subscribe();
+    const channels = [
+      supabase.channel('live-malls-gallery').on('postgres_changes', { event: '*', schema: 'public', table: 'gallery_images' }, fetchData).subscribe(),
+      supabase.channel('live-malls-cases').on('postgres_changes', { event: '*', schema: 'public', table: 'case_studies' }, fetchData).subscribe(),
+      supabase.channel('live-malls-blogs').on('postgres_changes', { event: '*', schema: 'public', table: 'blogs' }, fetchData).subscribe(),
+      supabase.channel('live-malls-texts').on('postgres_changes', { event: '*', schema: 'public', table: 'website_text' }, fetchData).subscribe()
+    ];
 
     return () => {
-      supabase.removeChannel(channel1);
-      supabase.removeChannel(channel2);
+      channels.forEach(channel => supabase.removeChannel(channel));
     };
   }, []);
 
@@ -83,54 +88,44 @@ const MallsView = () => {
       if (scrollContainerRef.current) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
         const scrollAmount = window.innerWidth < 640 ? 250 : 450;
-        
-        if (scrollLeft + clientWidth >= scrollWidth - 10) {
-          scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
+        if (scrollLeft + clientWidth >= scrollWidth - 10) scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        else scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
       }
     }, 3500); 
-
     return () => clearInterval(interval);
   }, []);
+
+  const handleImageError = (cardId, type = "card") => {
+    setHiddenCards(prev => new Set(prev).add(`${type}-${cardId}`));
+  };
 
   const fallbackImages = [
     { id: 1, image_url: "/assets/carnivals 2026.pdf/10.jpg", title: "Festive Season Atrium", category: "High Footfall" },
     { id: 2, image_url: "/assets/family-day (1).pdf/6.jpg", title: "Brand Product Launch", category: "Activation" },
     { id: 3, image_url: "/assets/family-day (1).pdf/8.jpg", title: "Weekend Kids Zone", category: "Queue Managed" },
-    { id: 4, image_url: "/assets/Blue_Sparrow_Corporate_Events_Complete_Workshop_Brochure.pdf/14.jpg", title: "Interactive DIY Booth", category: "Engagement" },
+    { id: 4, image_url: "/assets/Blue_Sparrow_Corporate_Events_Complete_Workshop_Brochure.pdf/14.jpg", title: "Interactive DIY Booth", category: "Engagement" }
   ];
 
-  const fallbackCards = [
-    {
-      id: 1,
-      title: "Pop-Up Craft Stations",
-      description: "Quick, engaging crafts that take less than 15 minutes, ensuring steady flow and high volume without crowding.",
-      image_url: "/assets/carnivals 2026.pdf/10.jpg",
-      icon: "HIGH VOLUME"
-    },
-    {
-      id: 2,
-      title: "Stage Shows & Games",
-      description: "Interactive crowd games and mini-shows that draw attention and create an electric atmosphere in the atrium.",
-      image_url: "/assets/family-day (1).pdf/8.jpg",
-      icon: "CROWD PULLER"
-    },
-    {
-      id: 3,
-      title: "Themed Photo Booths",
-      description: "Custom-built, immersive photo ops that encourage social sharing and organic brand reach for your retail space.",
-      image_url: "/assets/family-day (1).pdf/6.jpg",
-      icon: "VIRAL REACH"
-    }
+  const fallbackCaseStudies = [
+    { id: 1, title: "Diwali Fest: Central Mall", description: "How we managed a 10-day activation handling 5,000+ children with zero queue friction and glowing tenant feedback.", image_url: "/assets/carnivals 2026.pdf/11.jpg", icon: "FESTIVE" },
+    { id: 2, title: "Product Launch: Kids Apparel", description: "Creating an immersive, interactive runway and craft experience that boosted weekend footfall by 40%.", image_url: "/assets/family-day (1).pdf/4.jpg", icon: "BRAND ACTIVATION" }
   ];
 
-  const displaySlider = dbGallery.length > 0 ? dbGallery : fallbackImages;
-  const displayCards = dbCards.length > 0 ? dbCards : fallbackCards;
+  const fallbackBlogs = [
+    { id: 1, title: "Maximizing Atrium Space for Engagement", description: "Strategies for converting dead mall zones into high-energy family magnets without disrupting tenant visibility.", image_url: "/assets/carnivals 2026.pdf/1.jpg", icon: "SPATIAL DESIGN", date: "Oct 9, 2026" },
+    { id: 2, title: "The Psychology of Queue Management", description: "How to keep parents happy and kids entertained when wait times exceed 20 minutes.", image_url: "/assets/family-day (1).pdf/6.jpg", icon: "OPERATIONS", date: "Sep 28, 2026" },
+    { id: 3, title: "Why Edutainment Drives Retail Sales", description: "The direct correlation between hands-on kids activities and increased dwell time in shopping centers.", image_url: "/assets/Blue_Sparrow_Corporate_Events_Complete_Workshop_Brochure.pdf/16.jpg", icon: "RETAIL TRENDS", date: "Sep 15, 2026" }
+  ];
+
+  const heroImageDb = dbGallery.find(img => img.category === 'hero' || img.tag?.toLowerCase() === 'hero')?.image_url;
+  const glimpseImages = dbGallery.filter(g => !['hero', 'case_study'].includes(g.category) && !['hero', 'case_study'].includes(g.tag?.toLowerCase()));
+  
+  const displaySlider = glimpseImages.length > 0 ? glimpseImages : fallbackImages;
+  const displayCaseStudies = dbCaseStudies.length > 0 ? dbCaseStudies : fallbackCaseStudies;
+  const displayBlogs = dbBlogs.length > 0 ? dbBlogs : fallbackBlogs;
 
   return (
-    <div className="font-sans text-gray-600 bg-[#f8fafc] min-h-screen flex flex-col selection:bg-indigo-200 selection:text-indigo-900 overflow-x-hidden w-full max-w-[100vw] relative">
+    <div className="font-sans text-gray-600 bg-[#f4f7fb] min-h-screen flex flex-col selection:bg-indigo-200 selection:text-indigo-900 overflow-x-hidden w-full max-w-[100vw] relative">
       <BrandLogo />
       <Navbar />
       
@@ -149,11 +144,9 @@ const MallsView = () => {
 
       {/* ================= FULL SCREEN NEON HERO SECTION ================= */}
       <section className="relative w-full min-h-[95vh] flex items-center bg-[#0f172a] flex-grow overflow-hidden">
-        
-        {/* Full Size Background Image (NO white blur) */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/assets/Malls and Brands Activites.png" 
+            src={heroImageDb || "/assets/Malls and Brands Activites.png"} 
             alt="Malls and Brand Activities" 
             className="w-full h-full object-cover object-[70%_center] md:object-center" 
             onError={(e) => { 
@@ -161,237 +154,205 @@ const MallsView = () => {
               e.target.parentElement.classList.add('bg-gradient-to-br', 'from-indigo-900', 'to-purple-900'); 
             }} 
           />
-          {/* Subtle dark gradient strictly on the left to make neon pop without blurring the right side of the image */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 md:via-black/40 to-transparent w-full md:w-[70%] lg:w-[60%]"></div>
-          <div className="absolute inset-x-0 bottom-0 h-32 sm:h-40 bg-gradient-to-t from-[#f8fafc] to-transparent z-10"></div>
+          <div className="absolute inset-x-0 bottom-0 h-32 sm:h-40 bg-gradient-to-t from-[#f4f7fb] to-transparent z-10"></div>
         </div>
 
-        {/* Foreground Content - Shifted completely to the left edge */}
         <div className="w-full px-5 sm:px-10 lg:pl-16 xl:pl-24 relative z-20 pt-24 sm:pt-28 pb-16 flex flex-col justify-center min-h-[95vh]">
-          
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }} 
-            animate={{ opacity: 1, x: 0 }} 
-            transition={{ duration: 0.8, ease: "easeOut" }} 
-            className="w-full lg:w-[65%] xl:w-[50%] flex flex-col items-start text-left mt-4 sm:mt-0"
-          >
-            {/* Floating Neon Stars around the text */}
+          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="w-full lg:w-[65%] xl:w-[50%] flex flex-col items-start text-left mt-4 sm:mt-0">
             <NeonStar color="cyan" className="absolute -top-4 sm:-top-6 left-[5%] w-6 h-6 sm:w-8 sm:h-8 animate-pulse opacity-90" />
             <NeonStar color="pink" className="absolute top-[40%] right-[5%] w-4 h-4 sm:w-5 sm:h-5 animate-pulse opacity-70" />
             
             <span className="text-[#22d3ee] font-bold tracking-widest uppercase text-[9px] sm:text-[11px] md:text-sm mb-3 sm:mb-4 block drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">
-              Mall & Brand Activities
+              {dbTexts.hero_badge || "Schools & Brands Activities"}
             </span>
             
-            {/* Glowing Neon Heading */}
-            <h1 className="text-[40px] sm:text-[60px] md:text-[76px] lg:text-[84px] font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 leading-[1.05] tracking-tight mb-4 sm:mb-6 drop-shadow-[0_0_20px_rgba(192,132,252,0.6)]">
-              High Footfall. <br className="hidden sm:block" /> Zero Friction.
+            <h1 className="text-[40px] sm:text-[60px] md:text-[76px] lg:text-[84px] font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 leading-[1.05] tracking-tight mb-4 sm:mb-6 drop-shadow-[0_0_20px_rgba(192,132,252,0.6)] whitespace-pre-line">
+              {dbTexts.hero_title || "Brands Activation\nSchools Activites"}
             </h1>
             
-            <p className="text-[14px] sm:text-[15px] md:text-[17px] text-gray-100 max-w-xl font-medium leading-relaxed drop-shadow-md bg-black/50 sm:bg-black/30 p-4 sm:p-5 rounded-[16px] sm:rounded-2xl backdrop-blur-sm border border-white/10 mb-6 sm:mb-8">
-              We transform retail atriums into powerful family magnets. We engineer the participant flow, manage the queues, and run multi-day programming flawlessly.
+            <p className="text-[14px] sm:text-[15px] md:text-[17px] text-gray-100 max-w-xl font-medium leading-relaxed drop-shadow-md bg-black/50 sm:bg-black/30 p-4 sm:p-5 rounded-[16px] sm:rounded-2xl backdrop-blur-sm border border-white/10 mb-6 sm:mb-8 whitespace-pre-line">
+              {dbTexts.hero_desc || "We transform retail atriums into powerful family magnets. We engineer the participant flow, manage the queues, and run multi-day programming flawlessly."}
             </p>
 
             <button onClick={() => window.scrollTo({ top: 850, behavior: 'smooth' })} className="mt-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-bold py-3.5 sm:py-4 px-8 sm:px-10 rounded-full shadow-[0_0_20px_rgba(99,102,241,0.6)] hover:shadow-[0_0_30px_rgba(99,102,241,0.8)] transform hover:-translate-y-1 transition-all duration-300 text-[13px] sm:text-[15px] tracking-wide border border-indigo-300/50 flex items-center gap-2 sm:gap-3">
-              Explore Activations <span className="text-[16px] sm:text-lg">&rarr;</span>
+              {dbTexts.hero_btn || "Explore Activations"} <span className="text-[16px] sm:text-lg">&rarr;</span>
             </button>
           </motion.div>
         </div>
       </section>
 
-      {/* ================= B2B RETAIL CHALLENGES GRID ================= */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-12 max-w-[1400px] mx-auto relative z-20 sm:-mt-10 overflow-hidden">
-        
-        {/* CSS abstract neon curved doodles */}
-        <div className="absolute top-10 right-0 w-[40vw] h-[40vw] sm:w-[20vw] sm:h-[20vw] border-[3px] border-dashed border-indigo-200 rounded-full opacity-40 z-0 pointer-events-none drop-shadow-[0_0_15px_rgba(99,102,241,0.3)]"></div>
-{/*
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-white p-6 sm:p-10 rounded-[24px] sm:rounded-[40px] border border-indigo-50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_rgba(99,102,241,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center group">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-2xl sm:text-3xl mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(99,102,241,0.2)]"></div>
-            <h3 className="text-lg sm:text-xl font-serif font-bold text-[#1e293b] mb-2 sm:mb-3 group-hover:text-indigo-600 transition-colors">Brand Activations</h3>
-            <p className="text-gray-500 text-[13px] sm:text-[15px] font-light leading-relaxed">Fast-turnaround activities designed to keep lines moving while delivering high-value engagement, preventing atrium bottlenecks.</p>
-          </motion.div>
-          
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="bg-white p-6 sm:p-10 rounded-[24px] sm:rounded-[40px] border border-purple-50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_rgba(168,85,247,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center group transform md:-translate-y-6">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-50 text-purple-500 rounded-full flex items-center justify-center text-2xl sm:text-3xl mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(168,85,247,0.2)]">📐</div>
-            <h3 className="text-lg sm:text-xl font-serif font-bold text-[#1e293b] mb-2 sm:mb-3 group-hover:text-purple-600 transition-colors">Spatial Design</h3>
-            <p className="text-gray-500 text-[13px] sm:text-[15px] font-light leading-relaxed">Whether you have a massive main atrium or a compact dead zone, we optimize the footprint for maximum participant volume.</p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="bg-white p-6 sm:p-10 rounded-[24px] sm:rounded-[40px] border border-pink-50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_rgba(236,72,153,0.2)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center group sm:col-span-2 md:col-span-1">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-pink-50 text-pink-500 rounded-full flex items-center justify-center text-2xl sm:text-3xl mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(236,72,153,0.2)]">📅</div>
-            <h3 className="text-lg sm:text-xl font-serif font-bold text-[#1e293b] mb-2 sm:mb-3 group-hover:text-pink-600 transition-colors">Multi-Day Scalability</h3>
-            <p className="text-gray-500 text-[13px] sm:text-[15px] font-light leading-relaxed">Robust operational structures that allow activities to run consistently across weekends or entire month-long festive seasons.</p>
-          </motion.div>
-        </div>
-        */}
-      </section>
+      {/* Ambient Background Globs for Liquid Glass effect in content sections */}
+      <div className="fixed top-1/4 -right-32 w-[600px] h-[600px] bg-indigo-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-30 pointer-events-none z-0"></div>
+      <div className="fixed bottom-1/4 -left-32 w-[500px] h-[500px] bg-cyan-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-30 pointer-events-none z-0"></div>
 
       {/* ================= DYNAMIC AUTO IMAGE SLIDER ================= */}
-      <section className="py-12 sm:py-24 bg-white relative z-20 overflow-hidden border-y border-gray-100">
-        
-        {/* Neon Background Blob */}
-        <div className="absolute top-[20%] left-[-10%] w-[80vw] sm:w-[400px] h-[80vw] sm:h-[400px] bg-indigo-400/10 blur-[80px] sm:blur-[100px] rounded-full z-0 pointer-events-none"></div>
-
+      <section className="py-12 sm:py-24 relative z-20 overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 flex flex-col sm:flex-row sm:justify-between sm:items-end mb-8 sm:mb-12 relative z-10 gap-4">
            <div className="relative">
              <NeonStar color="indigo" className="absolute -top-3 -left-4 sm:-top-4 sm:-left-6 w-4 h-4 sm:w-5 sm:h-5 animate-pulse opacity-80" />
              <h2 className="text-[28px] sm:text-[36px] md:text-[42px] font-serif font-bold text-[#1e293b] mb-1 sm:mb-2 relative inline-block leading-tight">
-               Activations in Action
+               {dbTexts.glimpse_title || "Activations in Action"}
                <div className="absolute bottom-0 sm:bottom-1 left-[-5%] w-[110%] h-2 sm:h-3 bg-indigo-100 opacity-60 rounded-full rotate-[1deg] z-[-1]"></div>
              </h2>
-             <p className="text-gray-500 text-[13px] sm:text-[16px] font-light mt-1">See how we transform retail spaces.</p>
+             <p className="text-gray-500 text-[13px] sm:text-[16px] font-light mt-1">{dbTexts.glimpse_desc || "See how we transform retail spaces."}</p>
            </div>
            <div className="hidden md:flex gap-3">
-             <button onClick={() => scroll(-1)} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 transition-all shadow-sm hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+             <button onClick={() => scroll(-1)} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/60 backdrop-blur-md border border-white flex items-center justify-center text-gray-500 hover:bg-white hover:text-indigo-600 transition-all shadow-sm">
+               <span className="text-xl">&larr;</span>
              </button>
-             <button onClick={() => scroll(1)} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 transition-all shadow-sm hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+             <button onClick={() => scroll(1)} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/60 backdrop-blur-md border border-white flex items-center justify-center text-gray-500 hover:bg-white hover:text-indigo-600 transition-all shadow-sm">
+               <span className="text-xl">&rarr;</span>
              </button>
            </div>
         </div>
 
         <div ref={scrollContainerRef} className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 flex overflow-x-auto gap-4 sm:gap-8 pb-8 sm:pb-10 hide-scrollbar snap-x snap-mandatory scroll-smooth relative z-10">
           <AnimatePresence>
-            {displaySlider.map((img, i) => (
-              <motion.div layout key={img.id || i} className="min-w-[240px] sm:min-w-[320px] md:min-w-[480px] h-[200px] sm:h-[300px] md:h-[380px] snap-center group relative rounded-[20px] sm:rounded-[32px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.06)] bg-gray-100 cursor-pointer">
-                <img 
-                  src={img.image_url || img.src} 
-                  alt={img.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" 
-                  onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1519335359739-16629737f909?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"; }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b]/70 via-transparent to-transparent opacity-90"></div>
-                
-                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6">
-                  <span className="bg-white/20 backdrop-blur-md text-white border border-white/30 text-[9px] sm:text-[11px] font-bold px-2 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)] tracking-widest uppercase inline-block mb-2 sm:mb-3">
-                    {img.category || img.tag || 'Activation'}
-                  </span>
-                  <h3 className="text-white text-[18px] sm:text-2xl md:text-3xl font-serif font-bold drop-shadow-md">{img.title}</h3>
-                </div>
-              </motion.div>
-            ))}
+            {displaySlider.map((img, i) => {
+              if (hiddenCards.has(`glimpse-${img.id}`)) return null;
+
+              return (
+                <motion.div layout key={img.id || i} className="min-w-[240px] sm:min-w-[320px] md:min-w-[480px] h-[200px] sm:h-[300px] md:h-[380px] snap-center group relative rounded-[20px] sm:rounded-[32px] overflow-hidden bg-white/40 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] cursor-pointer">
+                  <img 
+                    src={img.image_url || img.src} 
+                    alt={img.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out p-1 sm:p-2 rounded-[20px] sm:rounded-[32px]" 
+                    onError={(e) => handleImageError(img.id, "glimpse")} 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b]/70 via-transparent to-transparent opacity-90"></div>
+                  
+                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 bg-white/70 backdrop-blur-md border border-white/80 p-3 sm:p-5 rounded-[16px] sm:rounded-[24px] shadow-sm transform translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                    <span className="text-indigo-600 font-bold text-[9px] sm:text-[11px] uppercase tracking-widest mb-1 block">
+                      {img.category || img.tag || 'Activation'}
+                    </span>
+                    <h3 className="text-[#1e293b] text-[16px] sm:text-[20px] md:text-[24px] font-serif font-bold leading-tight">{img.title}</h3>
+                  </div>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
       </section>
 
-      {/* ================= DYNAMIC THEME CARDS (RESPONSIVE 2-GRID MOBILE) ================= */}
-      <section className="pt-10 sm:pt-24 pb-20 sm:pb-20 px-3 sm:px-6 lg:px-12 bg-[#f8fafc] relative z-20 border-b border-gray-100 overflow-hidden">
-        
-        {/* Abstract CSS shapes */}
-        <div className="absolute top-[20%] right-[-5%] w-[80vw] sm:w-[40vw] h-[80vw] sm:h-[40vw] bg-pink-400/10 blur-[80px] sm:blur-[100px] rounded-full z-0 pointer-events-none"></div>
-
-        {/* Forces 2 columns on mobile, expands to 3 on large screens */}
-        <div className="max-w-[1400px] mx-auto grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-10 relative z-10">
+      {/* ================= CASE STUDIES SECTION (LIQUID GLASS) ================= */}
+      <section className="pt-10 pb-16 px-4 sm:px-6 lg:px-12 relative z-20">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="mb-8 text-center sm:text-left flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
+            <div>
+              <h2 className="text-[28px] sm:text-[36px] font-serif font-bold text-[#1e293b] mb-2">Activation Success Stories</h2>
+              <p className="text-gray-500 text-[14px] sm:text-[16px] font-light">See how we drive footfall and manage complex mall events.</p>
+            </div>
+            <Link to="/portfolio/case-studies" className="hidden sm:inline-flex text-indigo-600 font-bold hover:text-purple-600 transition-colors items-center gap-2 text-[15px]">
+              View All Studies <span>&rarr;</span>
+            </Link>
+          </div>
           
-          <AnimatePresence>
-            {displayCards.map((card, i) => (
-              <motion.div 
-                layout key={card.id || i}
-                initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: i * 0.1, ease: "easeOut" }}
-                className="bg-white w-full rounded-[16px] sm:rounded-[40px] p-2 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 hover:shadow-[0_15px_30px_rgba(99,102,241,0.15)] hover:-translate-y-1 sm:hover:-translate-y-2 transition-all duration-500 group flex flex-col relative overflow-hidden"
-              >
-                 <div className="absolute top-0 right-0 w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-bl from-indigo-100 to-transparent rounded-tr-[16px] sm:rounded-tr-[40px] z-0"></div>
-
-                 {/* Image Aspect Box - Scaled for 2-column mobile */}
-                 <div className="w-full aspect-[4/5] sm:aspect-[3/4] md:aspect-[9/16] max-h-[220px] sm:max-h-[450px] rounded-[10px] sm:rounded-[32px] overflow-hidden relative mb-2 sm:mb-6 bg-indigo-50 z-10 border border-gray-50">
-                   <img 
-                     src={card.image_url} 
-                     onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1519335359739-16629737f909?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"; }}
-                     alt={card.title} 
-                     className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-1000 ease-out" 
-                   />
-                   <span className="absolute top-2 right-2 sm:top-5 sm:right-5 bg-white/90 backdrop-blur-md text-indigo-600 text-[7px] sm:text-[10px] tracking-wider font-bold px-1.5 py-0.5 sm:px-4 sm:py-2 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.2)]">
-                     {card.icon || "SERVICE"}
-                   </span>
-                 </div>
-                 
-                 <div className="px-1 sm:px-2 pb-1 sm:pb-2 flex-grow flex flex-col z-10">
-                   <h3 className="font-serif font-bold text-[#1e293b] text-[13px] sm:text-[24px] mb-1 sm:mb-3 leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2 sm:line-clamp-none">
-                     {card.title}
-                   </h3>
-                   <p className="text-[10px] sm:text-[14px] md:text-[15px] text-gray-500 mb-2 sm:mb-6 leading-relaxed flex-grow font-light line-clamp-2 sm:line-clamp-none">
-                     {card.description}
-                   </p>
-                   
-                   <button className="text-indigo-500 font-bold text-[9px] sm:text-[14px] uppercase tracking-wider flex items-center gap-1 sm:gap-2 group-hover:text-pink-500 transition-colors mt-auto drop-shadow-sm w-fit">
-                     <span className="hidden sm:inline">Learn More</span>
-                     <span className="sm:hidden">Explore</span>
-                     <svg className="w-3 h-3 sm:w-4 sm:h-4 transform group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                   </button>
-                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </section>
-
-      {/* ================= THE BRIEF -> PLAN -> MADE REAL ================= */}
-      <section className="py-16 sm:py-24 bg-white relative overflow-hidden">
-        
-        {/* CSS abstract curves filling empty space */}
-        <div className="absolute top-[10%] left-[5%] w-[40vw] h-[40vw] sm:w-[20vw] sm:h-[20vw] border-[2px] border-dashed border-indigo-200 rounded-full opacity-40 z-0 pointer-events-none drop-shadow-[0_0_10px_rgba(99,102,241,0.2)]"></div>
-
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 lg:gap-24 items-center">
-            
-            <div className="relative px-2 sm:px-0">
-              <span className="text-indigo-500 font-bold tracking-widest uppercase text-[9px] sm:text-[11px] mb-3 sm:mb-4 block relative inline-block drop-shadow-[0_0_5px_rgba(99,102,241,0.4)]">
-                Case Study Highlight
-                <div className="absolute -bottom-1 left-0 w-full h-1 border-b-2 border-dashed border-indigo-200 opacity-60"></div>
-              </span>
-              <h2 className="text-[28px] sm:text-[36px] md:text-[48px] font-serif font-bold text-[#1e293b] mb-8 sm:mb-10 leading-[1.1]">How We Work: <br className="hidden sm:block"/>Retail Edition</h2>
-              
-              <div className="space-y-8 sm:space-y-10">
-                <div className="flex gap-4 sm:gap-6 group relative">
-                  <div className="absolute left-5 sm:left-6 top-10 sm:top-12 bottom-[-30px] sm:bottom-[-40px] w-0.5 border-l-2 border-dashed border-gray-200 z-[-1]"></div>
-                  
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 bg-[#f8fafc] border border-gray-200 rounded-full flex items-center justify-center font-bold text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 group-hover:border-indigo-300 group-hover:shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all z-10 shadow-sm text-sm sm:text-base">1</div>
-                  <div>
-                    <h4 className="text-[16px] sm:text-[20px] font-serif font-bold text-[#1e293b] mb-1 sm:mb-2 group-hover:text-indigo-600 transition-colors">The Brief</h4>
-                    <p className="text-[13px] sm:text-[14px] md:text-[15px] text-gray-500 font-light leading-relaxed">Weekend engagement, limited atrium space, high family footfall. The objective: keep kids deeply engaged while parents shop without crowding the aisles.</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4 sm:gap-6 group relative">
-                  <div className="absolute left-5 sm:left-6 top-10 sm:top-12 bottom-[-30px] sm:bottom-[-40px] w-0.5 border-l-2 border-dashed border-indigo-200 z-[-1]"></div>
-                  
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 bg-indigo-50 border border-indigo-300 rounded-full flex items-center justify-center font-bold text-indigo-500 z-10 shadow-[0_0_10px_rgba(99,102,241,0.2)] text-sm sm:text-base">2</div>
-                  <div>
-                    <h4 className="text-[16px] sm:text-[20px] font-serif font-bold text-[#1e293b] mb-1 sm:mb-2 text-indigo-600">The Plan</h4>
-                    <p className="text-[13px] sm:text-[14px] md:text-[15px] text-gray-500 font-light leading-relaxed">3 distinct, fast-paced activity zones with strict 10-minute rotation batches. Dedicated queue facilitators manage lines, utilizing self-contained, mess-free materials.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 sm:gap-6 group">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full flex items-center justify-center font-bold shadow-[0_0_15px_rgba(99,102,241,0.5)] z-10 border border-indigo-300/50 text-sm sm:text-base">3</div>
-                  <div>
-                    <h4 className="text-[16px] sm:text-[20px] font-serif font-bold text-[#1e293b] mb-1 sm:mb-2">Made Real</h4>
-                    <p className="text-[13px] sm:text-[14px] md:text-[15px] text-gray-500 font-light leading-relaxed">Seamless execution handling 500+ kids a day without a single crowd-control escalation for mall security.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative h-[300px] sm:h-[500px] md:h-[600px] w-full rounded-[24px] sm:rounded-[40px] overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.1)] group mt-8 lg:mt-0">
-              <div className="absolute inset-0 bg-indigo-900/10 mix-blend-multiply z-10"></div>
-              <img 
-                src="/assets/carnivals 2026.pdf/10.jpg" 
-                alt="Mall Activation Success" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
-                onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1519335359739-16629737f909?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"; }}
-              />
-              <div className="absolute bottom-6 sm:bottom-10 left-4 right-4 sm:left-6 sm:right-6 md:left-10 md:right-10 z-20 bg-white/90 backdrop-blur-md p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-white/50 shadow-xl transform group-hover:-translate-y-2 transition-transform duration-500">
-                <p className="text-[#1e293b] font-serif font-bold text-lg sm:text-xl md:text-2xl mb-1 sm:mb-2">"Flawless crowd control."</p>
-                <p className="text-[8px] sm:text-[10px] md:text-[11px] text-indigo-500 uppercase tracking-widest font-bold drop-shadow-sm">— Center Manager, Leading Retail Mall</p>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            <AnimatePresence>
+              {displayCaseStudies.map((study, i) => {
+                if (hiddenCards.has(`study-${study.id}`)) return null;
+                return (
+                  <motion.div 
+                    layout 
+                    key={study.id || i} 
+                    className="flex flex-col sm:flex-row bg-white/40 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:bg-white/60 rounded-[24px] overflow-hidden group transition-all duration-500 p-2 sm:p-3"
+                  >
+                    <div className="w-full sm:w-[45%] h-56 sm:h-auto overflow-hidden relative shrink-0 rounded-[18px]">
+                      <img 
+                        src={study.image_url} 
+                        alt={study.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" 
+                        onError={() => handleImageError(study.id, "study")}
+                      />
+                    </div>
+                    <div className="w-full sm:w-[55%] p-4 sm:p-6 lg:p-8 flex flex-col justify-center">
+                      <span className="text-indigo-500 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-2 inline-block">
+                        {study.icon || "CASE STUDY"}
+                      </span>
+                      <h3 className="text-lg sm:text-xl lg:text-2xl font-serif font-bold text-[#1e293b] mb-3 leading-tight">
+                        {study.title}
+                      </h3>
+                      <p className="text-gray-500 font-light text-[13px] sm:text-[14px] leading-relaxed line-clamp-3 mb-6">
+                        {study.description}
+                      </p>
+                      <Link to="/contact" className="inline-flex items-center gap-2 text-[#1e293b] font-bold hover:text-indigo-600 transition-colors w-fit text-[13px] sm:text-[14px] mt-auto">
+                        Read Report <span className="transform group-hover:translate-x-1 transition-transform">&rarr;</span>
+                      </Link>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         </div>
       </section>
-      
-      {/**<FaqBrochureSection pageTheme="malls" />**}*/}
+
+      {/* ================= BLOGS SECTION (LIQUID GLASS) ================= */}
+      <section className="pt-10 pb-24 px-4 sm:px-6 lg:px-12 relative z-20">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="mb-8 text-center sm:text-left flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
+            <div>
+              <h2 className="text-[28px] sm:text-[36px] font-serif font-bold text-[#1e293b] mb-2">Retail & Activation Insights</h2>
+              <p className="text-gray-500 text-[14px] sm:text-[16px] font-light">Strategies to turn passive shoppers into active participants.</p>
+            </div>
+            <Link to="/contact" className="hidden sm:inline-flex text-indigo-600 font-bold hover:text-purple-600 transition-colors items-center gap-2 text-[15px]">
+              View All Articles <span>&rarr;</span>
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <AnimatePresence>
+              {displayBlogs.map((blog, i) => {
+                if (hiddenCards.has(`blog-${blog.id}`)) return null;
+                return (
+                  <motion.div 
+                    layout 
+                    key={blog.id || i} 
+                    className="bg-white/40 backdrop-blur-xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:bg-white/60 rounded-[24px] overflow-hidden group transition-all duration-500 flex flex-col p-2 sm:p-2.5"
+                  >
+                    <div className="w-full aspect-[4/3] overflow-hidden relative shrink-0 rounded-[18px]">
+                      <img 
+                        src={blog.image_url} 
+                        alt={blog.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" 
+                        onError={() => handleImageError(blog.id, "blog")}
+                      />
+                    </div>
+                    
+                    <div className="p-4 sm:p-6 flex flex-col flex-grow">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-[9px] sm:text-[11px] font-bold text-[#4f46e5] uppercase tracking-wider">
+                          {blog.icon || "ARTICLE"}
+                        </span>
+                        <span className="text-[11px] font-medium text-gray-400">{blog.date || "Recent"}</span>
+                      </div>
+                      
+                      <h3 className="text-[18px] sm:text-[20px] font-serif font-bold text-[#1e293b] mb-3 line-clamp-2 leading-snug group-hover:text-indigo-600 transition-colors">
+                        {blog.title}
+                      </h3>
+                      
+                      <p className="text-gray-500 font-light text-[13px] sm:text-[14px] mb-6 line-clamp-3 leading-relaxed flex-grow">
+                        {blog.description}
+                      </p>
+                      
+                      <Link to="/contact" className="text-[13px] sm:text-[14px] font-bold text-[#1e293b] group-hover:text-indigo-600 transition-colors flex items-center gap-1 mt-auto w-fit">
+                        Read Article <span className="transform group-hover:translate-x-1 transition-transform">&rarr;</span>
+                      </Link>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+          
+          <div className="mt-8 text-center sm:hidden">
+             <Link to="/contact" className="inline-flex text-indigo-600 font-bold hover:text-purple-600 transition-colors items-center gap-2 text-[14px]">
+              View All Articles <span>&rarr;</span>
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

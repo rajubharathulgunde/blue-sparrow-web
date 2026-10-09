@@ -12,12 +12,7 @@ import PortfolioView from './features/Portfolio/views/PortfolioView';
 import ContactView from './features/Contact/views/ContactView';
 import AboutView from './features/About/views/AboutView'; 
 import AdminDashboard from './features/Admin/views/AdminDashboard';
-import ExperiencesView from './features/Experiences/views/ExperiencesView';
-import ScienceThemeView from './features/Experiences/views/ScienceThemeView';
-import WizardingThemeView from './features/Experiences/views/WizardingThemeView';
-import PrincessThemeView from './features/Experiences/views/PrincessThemeView';
-import SuperheroThemeView from './features/Experiences/views/SuperheroThemeView';
-import OtherThemesView from './features/Experiences/views/OtherThemesView';
+import ThemePageView from './features/Themes/views/ThemePageView'; 
 
 function App() {
   return (
@@ -35,16 +30,13 @@ function App() {
         <Route path="/malls" element={<MallsView />} />
         <Route path="/family-day" element={<FamilyDiscoveryView />} />
         
+        {/* === PORTFOLIO ROUTES === */}
         <Route path="/portfolio" element={<PortfolioView />} />
         <Route path="/portfolio/gallery" element={<PortfolioView />} />
         <Route path="/portfolio/case-studies" element={<PortfolioView />} />
+        <Route path="/portfolio/blogs" element={<PortfolioView />} />
         
-        <Route path="/experiences" element={<ExperiencesView />} />
-        <Route path="/theme/wizarding" element={<WizardingThemeView />} />
-        <Route path="/theme/princess" element={<PrincessThemeView />} />
-        <Route path="/theme/superhero" element={<SuperheroThemeView />} />
-        <Route path="/theme/science" element={<ScienceThemeView />} />
-        <Route path="/theme/other" element={<OtherThemesView />} />
+        <Route path="/themes" element={<ThemePageView />} />
         
         <Route path="/contact" element={<ContactView />} />
         <Route path="/admin" element={<AdminDashboard />} />

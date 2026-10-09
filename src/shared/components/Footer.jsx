@@ -61,20 +61,18 @@ const Footer = () => {
           {/* BRAND INFO - Spans full width (2 cols) on mobile, 1 col on PC */}
           <div className="col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-3 cursor-pointer group mb-5 sm:mb-6 inline-flex">
-              <div className="flex flex-col justify-center">
-                <span className="text-brand-navy font-serif font-bold text-lg sm:text-xl leading-none tracking-tight">
-                  Blue Sparrow
-                </span>
-                <span className="text-[#4f46e5] font-sans text-[8px] sm:text-[9px] font-semibold tracking-[0.3em] uppercase mt-1 leading-none">
-                  Events
-                </span>
-              </div>
+              {/* BRAND LOGO IMAGE */}
+              <img 
+                src="/assets/BS-Word-Logo-Light-BG.png" 
+                alt="Blue Sparrow Events" 
+                className="h-10 sm:h-12 w-auto object-contain transform group-hover:scale-105 transition-transform duration-300 origin-left"
+              />
             </Link>
             <p className="text-gray-500 text-[13px] sm:text-[14px] leading-relaxed mb-6 pr-4 font-medium max-w-sm lg:max-w-none">
               Crafting magical experiences and unforgettable memories since 2013. We turn your imagination into reality.
             </p>
             
-            {/* ================= SOCIAL ICONS ================= */}
+            {/* ================= SOCIAL ICONS (CMS CONNECTED) ================= */}
             <div className="flex flex-wrap gap-3 sm:gap-4">
               {cmsSocials.length > 0 ? (
                 cmsSocials.map((social) => (
@@ -113,31 +111,32 @@ const Footer = () => {
                 </>
               )}
             </div>
-            {/* ============================================================= */}
           </div>
 
-          {/* QUICK LINKS - Spans 1 col on mobile (sits next to Experiences) */}
+          {/* QUICK LINKS */}
           <div className="col-span-1 lg:col-span-1">
             <h4 className="text-brand-navy font-serif font-bold mb-4 sm:mb-6 text-[15px] sm:text-[17px]">Quick Links</h4>
             <ul className="flex flex-col gap-2.5 sm:gap-3">
+              <li><Link to="/about" className="text-gray-600 hover:text-[#4f46e5] font-medium transition-colors text-[13px] sm:text-[14px]">Blogs</Link></li>
+              <li><Link to="/portfolio/gallery" className="text-gray-600 hover:text-[#4f46e5] font-medium transition-colors text-[13px] sm:text-[14px]">Gallery</Link></li>
               <li><Link to="/about" className="text-gray-600 hover:text-[#4f46e5] font-medium transition-colors text-[13px] sm:text-[14px]">About Us</Link></li>
-              <li><Link to="/contact" className="text-gray-600 hover:text-[#4f46e5] font-medium transition-colors text-[13px] sm:text-[14px]">Plan an Event</Link></li>
-              <li><a href="#" className="text-gray-600 hover:text-[#4f46e5] font-medium transition-colors text-[13px] sm:text-[14px]">Trusted Brands</a></li>
+              <li><Link to="/contact" className="text-gray-600 hover:text-[#4f46e5] font-medium transition-colors text-[13px] sm:text-[14px]">Contact Us</Link></li>
             </ul>
           </div>
 
-          {/* EXPERIENCES - Spans 1 col on mobile */}
+          {/* SERVICES */}
           <div className="col-span-1 lg:col-span-1">
-            <h4 className="text-brand-navy font-serif font-bold mb-4 sm:mb-6 text-[15px] sm:text-[17px]">Experiences</h4>
+            <h4 className="text-brand-navy font-serif font-bold mb-4 sm:mb-6 text-[15px] sm:text-[17px]">Services</h4>
             <ul className="flex flex-col gap-2.5 sm:gap-3">
               <li><Link to="/corporate" className="text-gray-600 hover:text-blue-600 font-medium transition-colors text-[13px] sm:text-[14px] line-clamp-1">Corporate Events</Link></li>
+              <li><Link to="/family-day" className="text-gray-600 hover:text-orange-500 font-medium transition-colors text-[13px] sm:text-[14px] line-clamp-1">Corporate Family Day</Link></li>
               <li><Link to="/kids-parties" className="text-gray-600 hover:text-pink-500 font-medium transition-colors text-[13px] sm:text-[14px] line-clamp-1">Kids Parties</Link></li>
               <li><Link to="/carnivals" className="text-gray-600 hover:text-emerald-500 font-medium transition-colors text-[13px] sm:text-[14px] line-clamp-1">Carnivals</Link></li>
-              <li><Link to="/family-discovery" className="text-gray-600 hover:text-orange-500 font-medium transition-colors text-[13px] sm:text-[14px] line-clamp-1">Family Discovery</Link></li>
+              <li><Link to="/malls" className="text-gray-600 hover:text-cyan-500 font-medium transition-colors text-[13px] sm:text-[14px] line-clamp-1">Malls & Brand Activations</Link></li>
             </ul>
           </div>
 
-          {/* GET IN TOUCH - Spans full width (2 cols) on mobile to accommodate long emails/numbers */}
+          {/* GET IN TOUCH */}
           <div className="col-span-2 lg:col-span-1">
             <h4 className="text-brand-navy font-serif font-bold mb-4 sm:mb-6 text-[15px] sm:text-[17px]">Get In Touch</h4>
             <ul className="flex flex-col gap-3 sm:gap-4">
@@ -148,6 +147,19 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 text-pink-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                 <a href="tel:+919619780981" className="text-gray-600 font-medium hover:text-pink-500 transition-colors text-[13px] sm:text-[14px]">+91 96197 80981</a>
+              </li>
+              
+              {/* NEW ADDRESS SECTION WITH GOOGLE MAPS REDIRECT */}
+              <li className="flex items-start gap-3">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=Tower+6,+Lodha+New+Cuffe+Parade,+Wadala" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-600 font-medium hover:text-emerald-500 transition-colors text-[13px] sm:text-[14px] leading-snug"
+                >
+                  Tower 6, Lodha New Cuffe Parade, Wadala
+                </a>
               </li>
             </ul>
           </div>

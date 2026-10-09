@@ -1,7 +1,12 @@
+// AdminDashboard.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../../lib/supabase'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import AdminBrands from './AdminBrands';
+import AdminText from './AdminText'; 
+import AdminBlogsandCasestudies from './AdminBlogsandCasestudies';
+import AdminTheme from './AdminTheme';
 
 // --- CONFIGURATION FOR DYNAMIC PAGE SECTIONS ---
 const PAGE_TABS = [
@@ -11,14 +16,13 @@ const PAGE_TABS = [
   { id: 'corporate', label: '💼 Corporate' },
   { id: 'carnival', label: '🎪 Carnivals' },
   { id: 'discovery', label: '🧭 Discovery' },
-  { id: 'malls', label: '🛍️ Schools & Malls' }, // Renamed from Malls
+  { id: 'malls', label: '🛍️ Schools & Malls' }, 
   { id: 'science', label: '🧪 Science' },
   { id: 'superhero', label: '🦸‍♂️ Superhero' },
   { id: 'wizarding', label: '🧙‍♂️ Wizarding' },
   { id: 'princess', label: '👑 Princess' },
   { id: 'other', label: '✨ Other Themes' },
   { id: 'portfolio_gallery', label: '📸 Portfolio Gallery' },
-  { id: 'case_studies', label: '📘 Case Studies' },
 ];
 
 const getSectionsForPage = (pageId) => {
@@ -45,12 +49,6 @@ const getSectionsForPage = (pageId) => {
       { id: 'portfolio_images', label: 'Gallery Images', table: 'gallery_images', type: 'media', category: 'portfolio' }
     ];
   }
-  if (pageId === 'case_studies') {
-    return [
-      { id: 'case_studies_cards', label: 'Case Studies', table: 'theme_cards', type: 'card', theme_id: 'case_studies' }
-    ];
-  }
-  // Default structure for all themes/pages
   return [
     { id: `${pageId}_hero`, label: 'Main Screen Image (Hero Background)', table: 'gallery_images', type: 'media', category: 'hero' },
     { id: `${pageId}_glimpse`, label: 'Glimpse Images (Slider Media)', table: 'gallery_images', type: 'media', category: 'glimpse' },
@@ -310,7 +308,23 @@ const AdminDashboard = () => {
             📥 Leads CRM {pendingLeads.length > 0 && <span className="bg-[#f43f5e] text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto">{pendingLeads.length}</span>}
           </button>
           <button onClick={() => switchTab('content')} className={`flex items-center gap-3 text-left px-4 py-3.5 rounded-xl font-medium transition-all ${activeTab === 'content' ? 'bg-[#4f46e5] text-white shadow-md' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}>
-            📝 Website Content
+            🖼️ Media & Cards
+          </button>
+          {/* BRAND LOGOS TAB */}
+          <button onClick={() => switchTab('brands')} className={`flex items-center gap-3 text-left px-4 py-3.5 rounded-xl font-medium transition-all ${activeTab === 'brands' ? 'bg-[#4f46e5] text-white shadow-md' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}>
+            🏢 Brand Logos
+          </button>
+          {/* TEXT EDITOR TAB */}
+          <button onClick={() => switchTab('text')} className={`flex items-center gap-3 text-left px-4 py-3.5 rounded-xl font-medium transition-all ${activeTab === 'text' ? 'bg-[#4f46e5] text-white shadow-md' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}>
+            🔤 Website Text
+          </button>
+           {/* BLOGS & CASE STUDIES TAB */}
+          <button onClick={() => switchTab('blogs')} className={`flex items-center gap-3 text-left px-4 py-3.5 rounded-xl font-medium transition-all ${activeTab === 'blogs' ? 'bg-[#4f46e5] text-white shadow-md' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}>
+            📝 Blogs & Case Studies
+          </button>
+          {/* THEME MANAGER TAB */}
+          <button onClick={() => switchTab('theme_page')} className={`flex items-center gap-3 text-left px-4 py-3.5 rounded-xl font-medium transition-all ${activeTab === 'theme_page' ? 'bg-[#4f46e5] text-white shadow-md' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}>
+            🎨 Themes Landing Page
           </button>
         </nav>
         
@@ -329,7 +343,9 @@ const AdminDashboard = () => {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
               </button>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#0f172a] capitalize">{activeTab === 'content' ? 'Website Content Manager' : activeTab === 'leads' ? 'Leads CRM' : 'Dashboard Overview'}</h1>
+                <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#0f172a] capitalize">
+                  {activeTab === 'content' ? 'Media & Content Manager' : activeTab === 'brands' ? 'Brand Logos Manager' : activeTab === 'text' ? 'Website Text Manager' : activeTab === 'leads' ? 'Leads CRM' : activeTab === 'blogs' ? 'Blogs & Case Studies Manager' : 'Dashboard Overview'}
+                </h1>
                 <p className="text-gray-500 font-medium text-xs sm:text-sm mt-1">Manage and organize your platform</p>
               </div>
             </div>
@@ -345,7 +361,13 @@ const AdminDashboard = () => {
             )}
           </div>
 
-          {/* ================= TAB 1: OVERVIEW ANALYTICS (MODERNIZED) ================= */}
+          {/* ================= NEW TABS RENDERS ================= */}
+          {activeTab === 'brands' && <AdminBrands />}
+          {activeTab === 'text' && <AdminText />}
+          {activeTab === 'blogs' && <AdminBlogsandCasestudies />}
+          {activeTab === 'theme_page' && <AdminTheme />}
+
+          {/* ================= TAB 1: OVERVIEW ANALYTICS ================= */}
           {activeTab === 'overview' && (
             <div className="space-y-6 sm:space-y-8">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -459,23 +481,16 @@ const AdminDashboard = () => {
 
           {/* ================= TAB 3: WEBSITE CONTENT MANAGER ================= */}
           {activeTab === 'content' && (
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full animate-in fade-in duration-500">
               
-              {/* --- PAGE SELECTOR NAVBAR WITH SCROLL ARROWS --- */}
               <div className="relative mb-8 flex items-center w-full bg-white rounded-2xl shadow-sm border border-gray-200">
-                
-                {/* Left Arrow */}
                 <button onClick={() => scrollTabs(-1)} className="absolute left-0 z-10 h-[80%] px-2 bg-gradient-to-r from-white via-white to-transparent border-r-0 flex items-center justify-start text-gray-500 hover:text-[#0f172a] rounded-l-2xl">
                   <div className="bg-white rounded-full shadow-md border border-gray-100 p-1.5 flex items-center justify-center">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg>
                   </div>
                 </button>
 
-                <div 
-                  ref={tabsScrollRef}
-                  className="flex gap-2 p-2 w-full overflow-x-auto whitespace-nowrap scroll-smooth px-10"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
+                <div ref={tabsScrollRef} className="flex gap-2 p-2 w-full overflow-x-auto whitespace-nowrap scroll-smooth px-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                   <style>{`div::-webkit-scrollbar { display: none; }`}</style>
                   {PAGE_TABS.map(page => (
                     <button 
@@ -487,7 +502,6 @@ const AdminDashboard = () => {
                   ))}
                 </div>
 
-                {/* Right Arrow */}
                 <button onClick={() => scrollTabs(1)} className="absolute right-0 z-10 h-[80%] px-2 bg-gradient-to-l from-white via-white to-transparent border-l-0 flex items-center justify-end text-gray-500 hover:text-[#0f172a] rounded-r-2xl">
                   <div className="bg-white rounded-full shadow-md border border-gray-100 p-1.5 flex items-center justify-center">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"></path></svg>
@@ -495,7 +509,6 @@ const AdminDashboard = () => {
                 </button>
               </div>
 
-              {/* SPECIAL HOME PAGE CONTROLS (Hero Switch & FAQ Global Toggle) */}
               {activePage === 'home' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div className="bg-white p-5 sm:p-6 rounded-[24px] shadow-sm border border-gray-200 flex flex-col justify-between">
@@ -528,10 +541,9 @@ const AdminDashboard = () => {
                 </div>
               )}
 
-              {/* CONTENT MANAGER TWO-COLUMN LAYOUT */}
               <div className="flex flex-col lg:flex-row gap-8">
                 
-                {/* LEFT: ADD NEW ITEM FORM */}
+                {/* ADD NEW ITEM FORM */}
                 <div className="w-full lg:w-[35%] bg-white p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] shadow-sm border border-gray-200 h-fit lg:sticky lg:top-8">
                   <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-[#0f172a] border-b pb-4">
                     Add to {PAGE_TABS.find(p=>p.id===activePage)?.label || 'Section'}
@@ -551,7 +563,6 @@ const AdminDashboard = () => {
                           <input type="text" placeholder={selectedSection.type === 'card' ? "Header / Title *" : "Media Title (Optional)"} required={selectedSection.type === 'card'} value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-800 outline-none focus:border-[#4f46e5] focus:bg-white transition-colors text-sm sm:text-base" />
                           {selectedSection.type === 'card' && <textarea placeholder="Description Text *" required value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-800 h-28 outline-none focus:border-[#4f46e5] focus:bg-white transition-colors resize-none text-sm sm:text-base" />}
 
-                          {/* PORTFOLIO SPECIFIC CATEGORY SELECTOR */}
                           {selectedSection.id === 'portfolio_images' ? (
                             <div>
                               <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">Select Event Type (Category)</label>
@@ -645,6 +656,7 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+
         </div>
       </div>
 

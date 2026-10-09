@@ -4,53 +4,63 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 
 const ExploreSection = () => {
-  const [curatorNote, setCuratorNote] = useState(null);
   const [exploreLinks, setExploreLinks] = useState([]);
   const [workshops, setWorkshops] = useState([]);
+  const [dbTexts, setDbTexts] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
+      // 1. Fetch Explore Links and Workshops
       const { data } = await supabase
         .from('theme_cards')
         .select('*')
-        .in('theme_id', ['home_curator', 'home_explore', 'home_workshops'])
+        .in('theme_id', ['home_explore', 'home_workshops'])
         .order('created_at', { ascending: true });
 
       if (data) {
-        const curator = data.find(item => item.theme_id === 'home_curator');
-        if (curator) setCuratorNote(curator);
-
         setExploreLinks(data.filter(item => item.theme_id === 'home_explore'));
         setWorkshops(data.filter(item => item.theme_id === 'home_workshops'));
+      }
+
+      // 2. Fetch Text Blocks for this specific section
+      const { data: textData } = await supabase
+        .from('website_text')
+        .select('*')
+        .eq('page_id', 'home');
+
+      if (textData) {
+        const textMap = textData.reduce((acc, curr) => ({ ...acc, [curr.text_key]: curr.content }), {});
+        setDbTexts(textMap);
       }
     };
 
     fetchData();
 
-    const channel = supabase.channel('live-explore')
+    // Setup Realtime Listeners
+    const cardChannel = supabase.channel('live-explore')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'theme_cards' }, fetchData)
       .subscribe();
+      
+    const textChannel = supabase.channel('live-home-texts')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'website_text' }, fetchData)
+      .subscribe();
 
-    return () => supabase.removeChannel(channel);
+    return () => {
+      supabase.removeChannel(cardChannel);
+      supabase.removeChannel(textChannel);
+    };
   }, []);
 
   // === FALLBACK DATA ===
-  const defaultCurator = {
-    title: "Chief Happiness Officer",
-    description: "Every event is a blank canvas. We don't just organize parties; we hand-craft magical worlds where families can disconnect from the noise and reconnect with each other. Come explore with us!",
-    image_url: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?auto=format&fit=crop&w=800&q=80",
-    icon: "With Love, Blue Sparrow"
-  };
-
   const defaultExplore = [
-    { id: 'e1', title: "Mad Science Lab", description: "Potions & Experiments", image_url: "/assets/Science2.png", link: "/theme/science" },
-    { id: 'e2', title: "Wizarding Academy", description: "Spells & Magic", image_url: "/assets/wizarding.png", link: "/theme/wizarding" },
-    { id: 'e3', title: "Superhero Bootcamp", description: "Action & Obstacles", image_url: "/assets/Superhero.png", link: "/theme/superhero" },
-    { id: 'e4', title: "Royal Princess", description: "Crowns & Castles", image_url: "/assets/Princess.png", link: "/theme/princess" },
+    // ==={ id: 'e1', title: "Mad Science Lab", description: "Potions & Experiments", image_url: "/assets/Science2.png", link: "/theme/science" },
+   // ===  { id: 'e2', title: "Wizarding Academy", description: "Spells & Magic", image_url: "/assets/wizarding.png", link: "/theme/wizarding" },
+    // === { id: 'e3', title: "Superhero Bootcamp", description: "Action & Obstacles", image_url: "/assets/Superhero.png", link: "/theme/superhero" },
+    // === { id: 'e4', title: "Royal Princess", description: "Crowns & Castles", image_url: "/assets/Princess.png", link: "/theme/princess" },
     { id: 'e5', title: "Birthday Parties", description: "Magical Celebrations", image_url: "/assets/Birthday Section.png", link: "/kids-parties" },
-    { id: 'e6', title: "Corporate Days", description: "Team Building, Reimagined", image_url: "/assets/Corporate Family Days.png", link: "/corporate" },
+    { id: 'e6', title: "Corporate FamilyDays", description: "Team Building, Reimagined", image_url: "/assets/Corporate Family Days.png", link: "/corporate" },
     { id: 'e7', title: "Carnivals", description: "Spectacular Fun", image_url: "/assets/Carnival 1.png", link: "/carnivals" },
-    { id: 'e8', title: "Malls & Brands", description: "High Footfall Activations", image_url: "/assets/Malls and Brands Activites.png", link: "/malls" },
+    { id: 'e8', title: "Malls & Brands", description: " Activations", image_url: "/assets/Malls and Brands Activites.png", link: "/malls" },
   ];
 
   const defaultWorkshops = [
@@ -64,12 +74,11 @@ const ExploreSection = () => {
     }
   ];
 
-  const displayCurator = curatorNote || defaultCurator;
   const displayExplore = exploreLinks.length > 0 ? exploreLinks : defaultExplore;
   const displayWorkshops = workshops.length > 0 ? workshops : defaultWorkshops;
 
   return (
-    <section className="py-16 sm:py-24 lg:py-32 bg-[#f8fafc] relative z-20 overflow-hidden font-sans">
+    <section className="py-16 sm:py-24 lg:py-32 bg-[#f8fafc] relative z-20 overflow-hidden font-sans border-t border-gray-100">
       
       {/* Background Glows Scaled for Mobile */}
       <div className="absolute top-[5%] left-[-5%] w-[80vw] h-[80vw] lg:w-[40vw] lg:h-[40vw] bg-cyan-400/10 blur-[80px] lg:blur-[140px] rounded-full z-0 pointer-events-none"></div>
@@ -77,86 +86,96 @@ const ExploreSection = () => {
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         
-        {/* ================= 1. PREMIUM CURATOR NOTE (EDITORIAL DESIGN) ================= */}
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }} 
-          whileInView={{ opacity: 1, y: 0 }} 
-          viewport={{ once: true }} 
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col lg:flex-row w-full bg-[#fff6f0] mb-20 sm:mb-32 overflow-hidden shadow-sm rounded-2xl lg:rounded-none"
-        >
-          {/* LEFT: Geometric Image Container */}
-          <div className="w-full lg:w-[35%] relative min-h-[250px] sm:min-h-[350px] lg:min-h-[450px] flex items-end justify-center bg-white lg:bg-transparent">
-            
-            {/* The bold, angled background shape (Customer.io style) */}
-            <div 
-              className="absolute bottom-0 left-0 w-full h-[85%] bg-[#f97316] hidden lg:block" 
-              style={{ clipPath: 'polygon(0 25%, 100% 0, 100% 100%, 0 100%)' }}
-            ></div>
-            
-            {/* Image clipped cleanly to match the geometric aesthetic */}
-            <div 
-              className="relative z-10 w-full h-full lg:w-[90%] lg:h-[90%] overflow-hidden lg:mb-0"
-              style={{ clipPath: 'polygon(0 15%, 100% 0, 100% 100%, 0 100%)' }}
+        {/* ================= 1. ABOUT US / FOUNDER SECTION (MODERN PHOTO COLLAGE) ================= */}
+        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20 mb-24 sm:mb-32">
+          
+          {/* LEFT: Photo Collage */}
+          <div className="w-full lg:w-1/2 relative min-h-[350px] sm:min-h-[450px] lg:min-h-[500px]">
+            {/* Background decorative blob */}
+            <div className="absolute top-[10%] left-[10%] w-[80%] h-[80%] bg-blue-100/50 rounded-full blur-3xl pointer-events-none z-0"></div>
+
+            <motion.div 
+              initial={{ opacity: 0, x: -30, rotate: -5 }}
+              whileInView={{ opacity: 1, x: 0, rotate: -8 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="absolute top-[10%] left-[5%] w-[70%] h-[75%] rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-xl border-[6px] border-white z-10 bg-gray-100"
             >
               <img 
-                src={displayCurator.image_url} 
-                alt="Curator" 
-                className="w-full h-full object-cover object-center" 
-                onError={(e) => { e.target.src = defaultCurator.image_url; }} 
+                src={dbTexts.team_image_1 || "/assets/Team 1.jpg"} 
+                alt="Blue Sparrow Team 1" 
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 
+                onError={(e) => { e.target.src = "/assets/Team 1.jpg"; }} 
               />
-            </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, x: 30, rotate: 5 }}
+              whileInView={{ opacity: 1, x: 0, rotate: 6 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              className="absolute bottom-[5%] right-[5%] w-[65%] h-[65%] rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-2xl border-[6px] border-white z-20 bg-gray-100"
+            >
+              <img 
+                src={dbTexts.team_image_2 || "/assets/Team 2.jpg"} 
+                alt="Blue Sparrow Team 2" 
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 
+                onError={(e) => { e.target.src = "/assets/Team 2.jpg"; }} 
+              />
+            </motion.div>
           </div>
 
           {/* RIGHT: Text Content Area */}
-          <div className="w-full lg:w-[65%] p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-center bg-[#fff6f0]">
-            
-            {/* The Top Stats Header */}
-            <div className="flex flex-wrap gap-4 sm:gap-8 md:gap-12 mb-8 sm:mb-10 border-b border-orange-200/60 pb-5 sm:pb-6 w-full max-w-xl">
-              <div>
-                <span className="block text-[22px] sm:text-[28px] font-sans font-bold text-slate-800 leading-tight">500+</span>
-                <span className="text-[9px] sm:text-[11px] text-slate-500 uppercase tracking-widest font-bold">Events Delivered</span>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="w-full lg:w-1/2 flex flex-col justify-center"
+          >
+            <Link to="/about" className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-600 font-bold tracking-widest uppercase text-[10px] sm:text-[11px] px-4 py-1.5 rounded-full mb-6 w-fit border border-emerald-100 hover:bg-emerald-100 transition-colors">
+              {dbTexts.about_badge || "About Us"}
+            </Link>
+
+            <h2 className="text-[32px] sm:text-[42px] lg:text-[48px] font-sans font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-6">
+              {dbTexts.about_title || "Bringing Joy to Every Celebration"}
+            </h2>
+
+            <p className="text-[15px] sm:text-[16px] lg:text-[17px] text-slate-600 font-medium leading-relaxed mb-6">
+              {dbTexts.about_desc_1 || "At Blue Sparrow Events, we believe every child deserves a celebration that sparks wonder and creates lasting memories. With years of experience in event planning, we specialize in transforming ordinary moments into extraordinary adventures."}
+            </p>
+
+            <p className="text-[15px] sm:text-[16px] lg:text-[17px] text-slate-600 font-medium leading-relaxed mb-8">
+              {dbTexts.about_desc_2 || "Our team of creative professionals is passionate about crafting safe, engaging, and magical experiences that bring families together and create stories worth telling for years to come."}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-4 pt-8 border-t border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <span className="text-slate-700 font-bold text-[14px]">Safety First Approach</span>
               </div>
-              <div className="w-px h-10 sm:h-12 bg-orange-200/60 hidden md:block"></div>
-              <div>
-                <span className="block text-[22px] sm:text-[28px] font-sans font-bold text-slate-800 leading-tight">100K+</span>
-                <span className="text-[9px] sm:text-[11px] text-slate-500 uppercase tracking-widest font-bold">Smiles Crafted</span>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-pink-50 text-pink-500 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <span className="text-slate-700 font-bold text-[14px]">Creative & Unique Themes</span>
               </div>
             </div>
 
-            <div className="relative">
-              {/* Massive Quote Mark - Scaled for mobile */}
-              <div className="text-[80px] sm:text-[120px] font-serif leading-none text-slate-800 opacity-10 absolute -top-10 -left-2 sm:-top-16 sm:-left-6 pointer-events-none">
-                &ldquo;
-              </div>
-              
-              <h3 className="text-[18px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-slate-800 font-medium leading-[1.4] mb-8 sm:mb-10 z-10 relative">
-                {displayCurator.description}
-              </h3>
-            </div>
-            
-            <div className="mt-auto flex flex-col sm:flex-row sm:items-center justify-between border-t border-transparent pt-4 gap-4 sm:gap-0">
-              <div>
-                <p className="font-bold text-slate-900 text-[14px] sm:text-[16px] mb-0.5">{displayCurator.icon}</p>
-                <p className="text-slate-500 text-[12px] sm:text-[14px] font-medium">{displayCurator.title}</p>
-              </div>
-              <Link to="/about" className="text-[13px] sm:text-[14px] font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 transition-colors w-fit">
-                Read our story &rarr;
-              </Link>
-            </div>
-            
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
-        {/* ================= 2. QUICK EXPLORE LINKS (8 ITEMS - 2 GRID ON MOBILE) ================= */}
+        {/* ================= 2. QUICK EXPLORE LINKS ( GRID ON MOBILE) ================= */}
         <div className="relative">
           
           <div className="text-center mb-10 sm:mb-16 relative z-10 flex flex-col items-center">
             <h2 className="text-[28px] sm:text-[36px] md:text-[48px] font-sans font-extrabold text-slate-900 mb-3 sm:mb-4 tracking-tight">
-              Curated Experiences
+              {dbTexts.explore_title || "Curated Experiences"}
             </h2>
             <p className="text-slate-500 text-[14px] sm:text-[16px] md:text-[18px] font-medium max-w-2xl px-2">
-              Explore our most popular magical worlds, designed meticulously for maximum joy.
+              {dbTexts.explore_desc || "Explore our most popular magical worlds, designed meticulously for maximum joy."}
             </p>
           </div>
           
@@ -244,19 +263,19 @@ const ExploreSection = () => {
                         <div className="space-y-3 sm:space-y-4 font-medium text-[13px] sm:text-[15px] text-slate-600">
                           <div className="flex items-center gap-3 sm:gap-4">
                             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-50 flex items-center justify-center ${iconColor} text-sm sm:text-lg shadow-sm border border-slate-100`}>
-                              ⏰
+                              
                             </div>
                             {time}
                           </div>
                           <div className="flex items-center gap-3 sm:gap-4">
                             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-50 flex items-center justify-center ${iconColor} text-sm sm:text-lg shadow-sm border border-slate-100`}>
-                              📍
+                              
                             </div>
                             {place}
                           </div>
                           <div className="flex items-center gap-3 sm:gap-4">
                             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-50 flex items-center justify-center ${iconColor} text-sm sm:text-lg shadow-sm border border-slate-100`}>
-                              🙋‍♂️
+                              
                             </div>
                             {coordinator}
                           </div>

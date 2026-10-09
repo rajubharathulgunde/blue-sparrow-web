@@ -8,13 +8,21 @@ import { supabase } from '../../../lib/supabase';
 
 const PortfolioView = () => {
   const location = useLocation();
-  const initialTab = location.pathname.includes('case-studies') ? 'case-studies' : 'gallery';
+  
+  // Set initial tab based on the URL Route
+  const initialTab = location.pathname.includes('case-studies') 
+    ? 'case-studies' 
+    : location.pathname.includes('blogs') 
+      ? 'blogs' 
+      : 'gallery';
+      
   const [activeTab, setActiveTab] = useState(initialTab);
   const [activeFilter, setActiveFilter] = useState('All');
   
-  // Supabase State
+  // Supabase States
   const [galleryItems, setGalleryItems] = useState([]);
   const [caseStudies, setCaseStudies] = useState([]);
+  const [blogs, setBlogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch Data from Supabase
@@ -25,26 +33,34 @@ const PortfolioView = () => {
       setIsLoading(true);
       
       try {
-        // Fetch published gallery images from the admin 'portfolio_gallery' theme
+        // Fetch published gallery images
         const { data: galleryData, error: galleryError } = await supabase
           .from('gallery_images')
           .select('*')
           .eq('theme_id', 'portfolio_gallery')
           .order('created_at', { ascending: false });
-          
         if (galleryError) throw galleryError;
         
-        // Fetch published case studies from the admin 'case_studies' theme
+        // Fetch published case studies directly from 'case_studies' table
         const { data: caseData, error: caseError } = await supabase
-          .from('theme_cards')
+          .from('case_studies')
           .select('*')
-          .eq('theme_id', 'case_studies')
+          .eq('theme_id', 'portfolio')
           .order('created_at', { ascending: false });
-          
         if (caseError) throw caseError;
+
+        // Fetch published blogs directly from 'blogs' table
+        const { data: blogsData, error: blogsError } = await supabase
+          .from('blogs')
+          .select('*')
+          .eq('theme_id', 'portfolio') 
+          .order('created_at', { ascending: false });
+        if (blogsError) throw blogsError;
 
         setGalleryItems(galleryData || []);
         setCaseStudies(caseData || []);
+        setBlogs(blogsData || []);
+
       } catch (error) {
         console.error("Error fetching data:", error.message);
       } finally {
@@ -55,12 +71,14 @@ const PortfolioView = () => {
     fetchPortfolioData();
 
     // Listen for realtime updates
-    const channel1 = supabase.channel('live-portfolio-gallery').on('postgres_changes', { event: '*', schema: 'public', table: 'gallery_images' }, fetchPortfolioData).subscribe();
-    const channel2 = supabase.channel('live-case-studies').on('postgres_changes', { event: '*', schema: 'public', table: 'theme_cards' }, fetchPortfolioData).subscribe();
+    const channels = [
+      supabase.channel('live-portfolio-gallery').on('postgres_changes', { event: '*', schema: 'public', table: 'gallery_images' }, fetchPortfolioData).subscribe(),
+      supabase.channel('live-portfolio-cases').on('postgres_changes', { event: '*', schema: 'public', table: 'case_studies' }, fetchPortfolioData).subscribe(),
+      supabase.channel('live-portfolio-blogs').on('postgres_changes', { event: '*', schema: 'public', table: 'blogs' }, fetchPortfolioData).subscribe()
+    ];
 
     return () => {
-      supabase.removeChannel(channel1);
-      supabase.removeChannel(channel2);
+      channels.forEach(channel => supabase.removeChannel(channel));
     };
   }, []);
 
@@ -92,39 +110,49 @@ const PortfolioView = () => {
       <section className="pt-32 sm:pt-40 pb-10 sm:pb-12 px-4 sm:px-6 lg:px-12 bg-gradient-to-b from-purple-50 to-[#f8fafc]">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-bold text-brand-navy mb-4 sm:mb-6 tracking-tight">
-            Our Work
+            Our Work & Insights
           </h1>
           <p className="text-[14px] sm:text-lg text-gray-500 max-w-2xl mx-auto font-light mb-8 sm:mb-10 px-2">
-            Explore our visual gallery of past events, or dive deep into our logistical case studies to see exactly how we engineer magic.
+            Explore our visual gallery, dive deep into logistical case studies, or read our latest thoughts on event engineering.
           </p>
 
           {/* Toggle Switch */}
-          <div className="inline-flex bg-white p-1 sm:p-1.5 rounded-full shadow-sm border border-gray-100 relative">
+          <div className="inline-flex flex-wrap justify-center bg-white p-1 sm:p-1.5 rounded-full shadow-sm border border-gray-100 relative max-w-full">
             <button 
               onClick={() => setActiveTab('gallery')}
-              className={`relative px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-[12px] sm:text-sm transition-colors duration-300 ${activeTab === 'gallery' ? 'text-white' : 'text-gray-500 hover:text-brand-navy'}`}
+              className={`relative px-4 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-[11px] sm:text-sm transition-colors duration-300 ${activeTab === 'gallery' ? 'text-white' : 'text-gray-500 hover:text-brand-navy'}`}
             >
               {activeTab === 'gallery' && (
                 <motion.div layoutId="activePill" className="absolute inset-0 bg-[#4f46e5] rounded-full z-0" transition={{ type: "spring", stiffness: 500, damping: 35 }} />
               )}
-              <span className="relative z-10">Visual Gallery</span>
+              <span className="relative z-10 whitespace-nowrap">Visual Gallery</span>
             </button>
             
             <button 
               onClick={() => setActiveTab('case-studies')}
-              className={`relative px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-[12px] sm:text-sm transition-colors duration-300 ${activeTab === 'case-studies' ? 'text-white' : 'text-gray-500 hover:text-brand-navy'}`}
+              className={`relative px-4 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-[11px] sm:text-sm transition-colors duration-300 ${activeTab === 'case-studies' ? 'text-white' : 'text-gray-500 hover:text-brand-navy'}`}
             >
               {activeTab === 'case-studies' && (
                 <motion.div layoutId="activePill" className="absolute inset-0 bg-[#4f46e5] rounded-full z-0" transition={{ type: "spring", stiffness: 500, damping: 35 }} />
               )}
-              <span className="relative z-10">Case Studies</span>
+              <span className="relative z-10 whitespace-nowrap">Case Studies</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('blogs')}
+              className={`relative px-4 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-[11px] sm:text-sm transition-colors duration-300 ${activeTab === 'blogs' ? 'text-white' : 'text-gray-500 hover:text-brand-navy'}`}
+            >
+              {activeTab === 'blogs' && (
+                <motion.div layoutId="activePill" className="absolute inset-0 bg-[#4f46e5] rounded-full z-0" transition={{ type: "spring", stiffness: 500, damping: 35 }} />
+              )}
+              <span className="relative z-10 whitespace-nowrap">Blogs & News</span>
             </button>
           </div>
         </div>
       </section>
 
       {/* ================= TAB CONTENT ================= */}
-      <section className="px-4 sm:px-6 lg:px-12 pb-20 sm:pb-24 flex-grow">
+      <section className="px-4 sm:px-6 lg:px-12 pb-20 sm:pb-24 flex-grow relative z-10">
         <div className="max-w-7xl mx-auto">
           {isLoading ? (
             <div className="flex justify-center items-center py-20">
@@ -231,6 +259,58 @@ const PortfolioView = () => {
                           </div>
                           <div className="rounded-[20px] sm:rounded-3xl overflow-hidden h-[200px] sm:h-[300px] shadow-sm bg-gray-100">
                             <img src={study.image_url} className="w-full h-full object-cover" alt={study.title} />
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </motion.div>
+              )}
+
+              {/* BLOGS TAB */}
+              {activeTab === 'blogs' && (
+                <motion.div 
+                  key="blogs"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-8 sm:space-y-12 max-w-5xl mx-auto"
+                >
+                  {blogs.length === 0 ? (
+                    <div className="max-w-5xl mx-auto text-center py-10 text-gray-400 font-medium bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
+                      <span className="text-4xl block mb-3">📝</span>
+                      No blogs published yet.<br/> Add them via the Admin Panel.
+                    </div>
+                  ) : (
+                    blogs.map((blog) => (
+                      <div key={blog.id} className="bg-white rounded-[24px] sm:rounded-[40px] p-5 sm:p-8 md:p-12 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 hover:shadow-lg transition-shadow group">
+                        
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                            <span className="bg-indigo-50 text-[#4f46e5] px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest w-fit">
+                              {blog.icon || 'ARTICLE'}
+                            </span>
+                            <h2 className="text-xl sm:text-3xl font-serif font-bold text-brand-navy leading-tight">
+                              {blog.title}
+                            </h2>
+                          </div>
+                          <span className="text-[12px] font-medium text-gray-400 shrink-0 mt-2 sm:mt-0">
+                            {blog.date || "Recent"}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8">
+                          <div className="bg-[#f8fafc] p-5 sm:p-6 rounded-[20px] sm:rounded-3xl border border-gray-50 flex flex-col justify-center">
+                            <h4 className="font-bold text-brand-navy mb-2 text-base sm:text-lg">Overview</h4>
+                            <p className="text-[13px] sm:text-sm text-gray-500 whitespace-pre-wrap leading-relaxed flex-grow">
+                              {blog.description}
+                            </p>
+                            
+                            
+                          </div>
+                          <div className="rounded-[20px] sm:rounded-3xl overflow-hidden h-[200px] sm:h-[300px] shadow-sm bg-gray-100 relative">
+                            <img src={blog.image_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" alt={blog.title} />
                           </div>
                         </div>
                       </div>
